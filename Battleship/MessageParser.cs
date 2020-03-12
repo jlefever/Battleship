@@ -135,27 +135,41 @@ namespace Battleship
 
         private bool ParseSubmitBoard()
         {
+            var gameTypeId = ParseUInt8();
+            // lookup gameTypeId in local GameTypeRepository
+
             throw new NotImplementedException();
         }
 
         private bool ParseRejectBoard()
         {
-            throw new NotImplementedException();
+            var error = (RejectBoardErrorId)ParseUInt8();
+            _handler.HandleAsync(new RejectBoardMessage(error));
+            return true;
         }
 
         private bool ParseMyGuess()
         {
-            throw new NotImplementedException();
+            var row = ParseUInt8();
+            var col = ParseUInt8();
+            _handler.HandleAsync(new MyGuessMessage(row, col));
+            return true;
         }
 
         private bool ParseTheirGuess()
         {
-            throw new NotImplementedException();
+            var row = ParseUInt8();
+            var col = ParseUInt8();
+            _handler.HandleAsync(new TheirGuessMessage(row, col));
+            return true;
         }
 
         private bool ParseYouLose()
         {
-            throw new NotImplementedException();
+            var row = ParseUInt8();
+            var col = ParseUInt8();
+            _handler.HandleAsync(new YouLoseMessage(row, col));
+            return true;
         }
 
         private byte ParseUInt8()

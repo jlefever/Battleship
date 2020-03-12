@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Battleship.Messages;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Battleship.Messages;
 
 namespace Battleship
 {
@@ -34,8 +34,8 @@ namespace Battleship
             }
 
             var diff = BspConstants.MaxShips - message.Ships.Length;
-            var ships = message.Ships.Concat(Enumerable.Repeat((byte) 0, diff));
-         
+            var ships = message.Ships.Concat(Enumerable.Repeat((byte)0, diff));
+
             return GetHeaderBytes(message.TypeId)
                 .Concat(GetBytes(message.GameTypeId))
                 .Concat(GetBytes(message.BoardWidth))
@@ -50,27 +50,34 @@ namespace Battleship
 
         public IEnumerable<byte> VisitRejectBoardMessage(RejectBoardMessage message)
         {
-            throw new NotImplementedException();
+            return GetHeaderBytes(message.TypeId)
+                .Concat(GetBytes((byte)message.ErrorId));
         }
 
         public IEnumerable<byte> VisitMyGuessMessage(MyGuessMessage message)
         {
-            throw new NotImplementedException();
+            return GetHeaderBytes(message.TypeId)
+                .Concat(GetBytes(message.RowIndex))
+                .Concat(GetBytes(message.ColIndex));
         }
 
         public IEnumerable<byte> VisitTheirGuessMessage(TheirGuessMessage message)
         {
-            throw new NotImplementedException();
+            return GetHeaderBytes(message.TypeId)
+                .Concat(GetBytes(message.RowIndex))
+                .Concat(GetBytes(message.ColIndex));
         }
 
         public IEnumerable<byte> VisitYouLoseMessage(YouLoseMessage message)
         {
-            throw new NotImplementedException();
+            return GetHeaderBytes(message.TypeId)
+                .Concat(GetBytes(message.RowIndex))
+                .Concat(GetBytes(message.ColIndex));
         }
 
         private static IEnumerable<byte> GetHeaderBytes(MessageTypeId typeId)
         {
-            return GetBytes((ushort)typeId).Concat(GetBytes(0));
+            return GetBytes((ushort)typeId).Concat(GetBytes((byte)0));
         }
 
         private static IEnumerable<byte> GetBytes(byte value)

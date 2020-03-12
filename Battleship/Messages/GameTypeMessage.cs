@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Battleship.Messages
+﻿namespace Battleship.Messages
 {
     public class GameTypeMessage : IMessage
     {
@@ -22,6 +20,14 @@ namespace Battleship.Messages
         public TResult Accept<TResult>(IMessageVisitor<TResult> visitor)
         {
             return visitor.VisitGameTypeMessage(this);
+        }
+
+        public override string ToString()
+        {
+            return $"{nameof(TypeId)}: {TypeId}, {nameof(GameTypeId)}: " +
+                   $"{GameTypeId}, {nameof(BoardWidth)}: {BoardWidth}, " +
+                   $"{nameof(BoardHeight)}: {BoardHeight}, {nameof(Ships)}: " +
+                   $"{Ships}";
         }
     }
 }
