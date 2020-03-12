@@ -15,7 +15,7 @@ namespace Battleship.Server
             var listener = new BspListener(logger);
             var receiver = new BspReceiver(logger);
 
-            await foreach (var socket in listener.BeginListeningAsync(ip))
+            await foreach (var socket in listener.StartListeningAsync(ip))
             {
                 var sender = new BspSender(socket, logger, unparser);
                 var handler = new PongMessageHandler(sender, logger);

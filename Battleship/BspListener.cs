@@ -14,7 +14,7 @@ namespace Battleship
         }
 
         // TODO: Cancellation token?
-        public async IAsyncEnumerable<Socket> BeginListeningAsync(IPEndPoint endPoint, int backlog = 120)
+        public async IAsyncEnumerable<Socket> StartListeningAsync(IPEndPoint endPoint, int backlog = 120)
         {
             var socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
             socket.Bind(endPoint);

@@ -11,7 +11,6 @@ namespace Battleship.Client
         public static async Task Main(string[] args)
         {
             var logger = new Logger(Console.Out);
-            var parser = new MessageParser(new PrintingMessageHandler(logger));
             var unparser = new MessageUnparser();
 
             var endpoint = new IPEndPoint(IPAddress.Loopback, 9096);
@@ -28,6 +27,10 @@ namespace Battleship.Client
             }
 
             var sender = new BspSender(socket, logger, unparser);
+            var handler = new PongMessageHandler(sender, logger);
+            var parser = new MessageParser(handler);
+            var receiver = new BspReceiver(logger);
+            _ = receiver.StartReceivingAsync(socket, parser);
 
             while (true)
             {
