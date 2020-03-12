@@ -28,7 +28,19 @@ namespace Battleship
 
         public IEnumerable<byte> VisitGameTypeMessage(GameTypeMessage message)
         {
-            throw new NotImplementedException();
+            if (message.Ships.Length > BspConstants.MaxShips)
+            {
+                throw new MessageUnparserException($"Must not have more than {BspConstants.MaxShips} ships.");
+            }
+
+            var diff = BspConstants.MaxShips - message.Ships.Length;
+            var ships = message.Ships.Concat(Enumerable.Repeat((byte) 0, diff));
+         
+            return GetHeaderBytes(message.TypeId)
+                .Concat(GetBytes(message.GameTypeId))
+                .Concat(GetBytes(message.BoardWidth))
+                .Concat(GetBytes(message.BoardHeight))
+                .Concat(ships);
         }
 
         public IEnumerable<byte> VisitSubmitBoardMessage(SubmitBoardMessage message)
@@ -73,7 +85,13 @@ namespace Battleship
 
         private static IEnumerable<byte> GetBytes(string value)
         {
-            value = value.PadRight(16, '\0').Substring(0, 16);
+            if (value.Length > BspConstants.MaxStringLength)
+            {
+                var message = $"Strings must not be longer than {BspConstants.MaxStringLength} characters.";
+                throw new MessageUnparserException(message);
+            }
+
+            value = value.PadRight(BspConstants.MaxStringLength, '\0');
             return Encoding.ASCII.GetBytes(value);
         }
     }

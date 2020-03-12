@@ -1,8 +1,9 @@
-﻿using System;
+﻿using Battleship.Messages;
+using System;
 using System.Buffers;
-using System.Reflection.Metadata.Ecma335;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
-using Battleship.Messages;
 
 namespace Battleship
 {
@@ -43,60 +44,93 @@ namespace Battleship
 
         private bool ParseMessage()
         {
-            var id = ParseUInt16();
+            var id = (MessageTypeId)ParseUInt16();
             ParseUInt8();
 
             return id switch
             {
-                0b00000 => ParseLogOn(),
-                0b00001 => ParseRejectLogOn(),
-                0b00010 => ParseAcceptLogOn(),
-                0b00011 => ParseGameType(),
-                0b00100 => ParseSubmitBoard(),
-                0b00101 => ParseRejectBoard(),
-                0b00110 => ParseAcceptBoard(),
-                0b00111 => ParseRecallBoard(),
-                0b01000 => ParseFoundGame(),
-                0b01001 => ParseRejectGame(),
-                0b01010 => ParseAcceptGame(),
-                0b01011 => ParseGameExpired(),
-                0b01100 => ParseAssignRed(),
-                0b01101 => ParseAssignBlue(),
-                0b01110 => ParseMyGuess(),
-                0b01111 => ParseTheirGuess(),
-                0b10000 => ParseBadGuess(),
-                0b10001 => ParseHit(),
-                0b10010 => ParseMiss(),
-                0b10011 => ParseSunk(),
-                0b10100 => ParseYouWin(),
-                0b10101 => ParseYouLose(),
+                MessageTypeId.LogOn => ParseLogOn(),
+                MessageTypeId.RejectLogOn => ParseRejectLogOn(),
+                MessageTypeId.AcceptLogOn => ParseBasic(id),
+                MessageTypeId.GameType => ParseGameType(),
+                MessageTypeId.SubmitBoard => ParseSubmitBoard(),
+                MessageTypeId.RejectBoard => ParseRejectBoard(),
+                MessageTypeId.AcceptBoard => ParseBasic(id),
+                MessageTypeId.RecallBoard => ParseBasic(id),
+                MessageTypeId.FoundGame => ParseBasic(id),
+                MessageTypeId.RejectGame => ParseBasic(id),
+                MessageTypeId.AcceptGame => ParseBasic(id),
+                MessageTypeId.GameExpired => ParseBasic(id),
+                MessageTypeId.AssignRed => ParseBasic(id),
+                MessageTypeId.AssignBlue => ParseBasic(id),
+                MessageTypeId.MyGuess => ParseMyGuess(),
+                MessageTypeId.TheirGuess => ParseTheirGuess(),
+                MessageTypeId.BadGuess => ParseBasic(id),
+                MessageTypeId.Hit => ParseBasic(id),
+                MessageTypeId.Miss => ParseBasic(id),
+                MessageTypeId.Sunk => ParseBasic(id),
+                MessageTypeId.YouWin => ParseBasic(id),
+                MessageTypeId.YouLose => ParseYouLose(),
                 _ => false
             };
+        }
+
+        private bool ParseBasic(MessageTypeId id)
+        {
+            _handler.HandleAsync(new BasicMessage(id));
+            return true;
         }
 
         private bool ParseLogOn()
         {
             var version = ParseUInt8();
-            var username = ParseString(16);
-            var password = ParseString(16);
-            _handler.Handle(new LogOnMessage(version, username, password));
+            var username = ParseString();
+            var password = ParseString();
+            _handler.HandleAsync(new LogOnMessage(version, username, password));
             return true;
         }
 
         private bool ParseRejectLogOn()
         {
-            _handler.Handle(new RejectLogOnMessage(ParseUInt8()));
+            _handler.HandleAsync(new RejectLogOnMessage(ParseUInt8()));
             return true;
-        }
-
-        private bool ParseAcceptLogOn()
-        {
-            throw new NotImplementedException();
         }
 
         private bool ParseGameType()
         {
-            throw new NotImplementedException();
+            var gameTypeId = ParseUInt8();
+            var boardWidth = ParseUInt8();
+            var boardHeight = ParseUInt8();
+
+            var prevShip = byte.MaxValue;
+            var ships = new List<byte>();
+
+            for (var i = 0; i < 127; i++)
+            {
+                var ship = ParseUInt8();
+
+                if (ship > prevShip)
+                {
+                    // Ships must be listed in descending order.
+                    return false;
+                }
+
+                if (ship != 0)
+                {
+                    ships.Add(ship);
+                }
+
+                prevShip = ship;
+            }
+
+            if (!ships.Any())
+            {
+                // A GameType needs at least one ship.
+                return false;
+            }
+
+            _handler.HandleAsync(new GameTypeMessage(gameTypeId, boardWidth, boardHeight, ships.ToArray()));
+            return true;
         }
 
         private bool ParseSubmitBoard()
@@ -109,77 +143,12 @@ namespace Battleship
             throw new NotImplementedException();
         }
 
-        private bool ParseAcceptBoard()
-        {
-            throw new NotImplementedException();
-        }
-
-        private bool ParseRecallBoard()
-        {
-            throw new NotImplementedException();
-        }
-
-        private bool ParseFoundGame()
-        {
-            throw new NotImplementedException();
-        }
-
-        private bool ParseRejectGame()
-        {
-            throw new NotImplementedException();
-        }
-
-        private bool ParseAcceptGame()
-        {
-            throw new NotImplementedException();
-        }
-
-        private bool ParseGameExpired()
-        {
-            throw new NotImplementedException();
-        }
-
-        private bool ParseAssignRed()
-        {
-            throw new NotImplementedException();
-        }
-
-        private bool ParseAssignBlue()
-        {
-            throw new NotImplementedException();
-        }
-
         private bool ParseMyGuess()
         {
             throw new NotImplementedException();
         }
 
         private bool ParseTheirGuess()
-        {
-            throw new NotImplementedException();
-        }
-
-        private bool ParseBadGuess()
-        {
-            throw new NotImplementedException();
-        }
-
-        private bool ParseHit()
-        {
-            throw new NotImplementedException();
-        }
-
-        private bool ParseMiss()
-        {
-            throw new NotImplementedException();
-        }
-
-        private bool ParseSunk()
-        {
-            throw new NotImplementedException();
-        }
-
-        private bool ParseYouWin()
         {
             throw new NotImplementedException();
         }
@@ -199,9 +168,9 @@ namespace Battleship
             return BitConverter.ToUInt16(Consume(2));
         }
 
-        private string ParseString(int length)
+        private string ParseString()
         {
-            return Encoding.ASCII.GetString(Consume(length)).TrimEnd('\0');
+            return Encoding.ASCII.GetString(Consume(16)).TrimEnd('\0');
         }
 
         private byte[] Consume(int length)

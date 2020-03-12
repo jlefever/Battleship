@@ -9,8 +9,8 @@ namespace Battleship.DFA
         // I don't know where to use these yet.
         public IEnumerable<Type> ValidMessageTypes { get; } = new[] 
         { 
-            typeof(RejectLogOn),
-            typeof(AcceptLogOn)
+            typeof(RejectLogOnMessage),
+            //typeof(AcceptLogOnMessage)
         };
 
         public void Received(ClientStateContext context, IMessage message)
@@ -20,15 +20,12 @@ namespace Battleship.DFA
                 throw new ArgumentNullException(nameof(context));
             }
 
-            if (message is RejectLogOn)
+            if (message is RejectLogOnMessage)
             {
                 context.State = new NotConnectedState();
             }
 
-            if (message is AcceptLogOn)
-            {
-                context.State = new WaitingForBoardState();
-            }
+            
 
             context.Abort();
         }

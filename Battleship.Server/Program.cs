@@ -6,22 +6,21 @@ namespace Battleship.Server
 {
     public static class Program
     {
-        public static void Main(string[] args)
-        {
-            MainAsync(args).GetAwaiter().GetResult();
-        }
-
-        public static async Task MainAsync(string[] args)
+        public static async Task Main(string[] args)
         {
             var ip = new IPEndPoint(IPAddress.Loopback, 9096);
-            var listener = new BspListener(new Logger(Console.Out));
 
-            await foreach (var connection in listener.ListenAsync(ip))
+            var logger = new Logger(Console.Out);
+            var unparser = new MessageUnparser();
+            var listener = new BspListener(logger);
+            var receiver = new BspReceiver(logger);
+
+            await foreach (var socket in listener.BeginListeningAsync(ip))
             {
-                _ = connection.HandleAsync();
+                var sender = new BspSender(socket, logger, unparser);
+                var handler = new PongMessageHandler(sender, logger);
+                _ = receiver.StartReceivingAsync(socket, new MessageParser(handler));
             }
-
-            listener.Dispose();
         }
     }
 }

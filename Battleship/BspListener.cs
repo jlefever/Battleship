@@ -1,37 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 
 namespace Battleship
 {
-    public sealed class BspListener : IDisposable
+    public sealed class BspListener
     {
         private readonly Logger _logger;
-        private readonly Socket _socket;
 
         public BspListener(Logger logger)
         {
             _logger = logger;
-            _socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
         }
 
-        public async IAsyncEnumerable<BspConnection> ListenAsync(IPEndPoint endPoint, int backlog = 120)
+        // TODO: Cancellation token?
+        public async IAsyncEnumerable<Socket> BeginListeningAsync(IPEndPoint endPoint, int backlog = 120)
         {
-            _socket.Bind(endPoint);
-            _logger.LogInfo("Listening on " + _socket.LocalEndPoint);
-            _socket.Listen(backlog);
+            var socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
+            socket.Bind(endPoint);
+            _logger.LogInfo("Listening on " + socket.LocalEndPoint);
+            socket.Listen(backlog);
 
             while (true)
             {
-                var socket = await _socket.AcceptAsync();
-                yield return new BspConnection(socket, _logger);
+                yield return await socket.AcceptAsync();
             }
-        }
 
-        public void Dispose()
-        {
-            _socket.Dispose();
+            socket.Dispose();
         }
     }
 }
