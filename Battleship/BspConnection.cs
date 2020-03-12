@@ -4,7 +4,7 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using Battleship.Messages;
 
-namespace Battleship.Server
+namespace Battleship
 {
     public class BspConnection
     {
@@ -21,43 +21,24 @@ namespace Battleship.Server
         {
             _logger.LogInfo("Connected to " + _socket.RemoteEndPoint);
 
+            var parser = new MessageParser(new BasicMessageHandler());
             var stream = new NetworkStream(_socket);
             var reader = PipeReader.Create(stream);
-            var badMessage = false;
 
             while (true)
             {
                 var readResult = await reader.ReadAsync();
                 var buffer = readResult.Buffer;
+                var result = parser.Parse(buffer);
 
-                while (true)
+                if (result == null)
                 {
-                    var parser = new MessageParser(buffer);
-                    var parseResult = parser.ParseMessage();
-
-                    if (parseResult is BadParseResult)
-                    {
-                        badMessage = true;
-                        break;
-                    }
-
-                    if (parseResult is IncompleteParseResult)
-                    {
-                        break;
-                    }
-
-                    if (!(parseResult is OkParseResult ok))
-                    {
-                        throw new Exception("Parser returned unknown ParseResult.");
-                    }
-
-                    buffer = buffer.Slice(parser.Current);
-                    ProcessMessage(ok.Message);
+                    break;
                 }
 
-                reader.AdvanceTo(buffer.Start, buffer.End);
+                reader.AdvanceTo(result.Value, buffer.End);
 
-                if (badMessage || readResult.IsCompleted)
+                if (readResult.IsCompleted)
                 {
                     break;
                 }
@@ -66,8 +47,11 @@ namespace Battleship.Server
             await reader.CompleteAsync();
             _logger.LogInfo("Disconnected from " + _socket.RemoteEndPoint);
         }
+    }
 
-        private static void ProcessMessage(IMessage message)
+    public class BasicMessageHandler : IMessageHandler
+    {
+        public void Handle(IMessage message)
         {
             Console.WriteLine(message);
         }

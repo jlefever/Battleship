@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using Battleship.Messages;
 
@@ -7,67 +8,185 @@ namespace Battleship
 {
     public class MessageParser
     {
-        private readonly ReadOnlySequence<byte> _buffer;
+        private class IncompleteException : Exception { }
 
-        public MessageParser(ReadOnlySequence<byte> buffer)
+        private readonly IMessageHandler _handler;
+        private ReadOnlySequence<byte> _buffer;
+        private SequencePosition _messageStart;
+
+        public MessageParser(IMessageHandler handler)
         {
-            _buffer = buffer;
-            Current = buffer.Start;
+            _handler = handler;
         }
 
-        public SequencePosition Current { get; private set; }
-
-        public ParseResult ParseMessage()
+        public SequencePosition? Parse(ReadOnlySequence<byte> buffer)
         {
-            if (_buffer.Length < 3)
-            {
-                return new IncompleteParseResult();
-            }
+            _buffer = buffer;
 
+            while (true)
+            {
+                _messageStart = _buffer.Start;
+
+                try
+                {
+                    if (!ParseMessage())
+                    {
+                        return null;
+                    }
+                }
+                catch (IncompleteException)
+                {
+                    return _messageStart;
+                }
+            }
+        }
+
+        private bool ParseMessage()
+        {
             var id = ParseUInt16();
-            ParseUInt8(); // Extension which is never used
+            ParseUInt8();
 
             return id switch
             {
                 0b00000 => ParseLogOn(),
-                //0b00001 => ParseRejectLogOn(),
-                //0b00010 => ParseAcceptLogOn(),
-                //0b00011 => ParseGameType(),
-                //0b00100 => ParseSubmitBoard(),
-                //0b00101 => ParseRejectBoard(),
-                //0b00110 => ParseAcceptBoard(),
-                //0b00111 => ParseRecallBoard(),
-                //0b01000 => ParseFoundGame(),
-                //0b01001 => ParseRejectGame(),
-                //0b01010 => ParseAcceptGame(),
-                //0b01011 => ParseGameExpired(),
-                //0b01100 => ParseAssignRed(),
-                //0b01101 => ParseAssignBlue(),
-                //0b01110 => ParseMyGuess(),
-                //0b01111 => ParseTheirGuess(),
-                //0b10000 => ParseBadGuess(),
-                //0b10001 => ParseHit(),
-                //0b10010 => ParseMiss(),
-                //0b10011 => ParseSunk(),
-                //0b10100 => ParseYouWin(),
-                //0b10101 => ParseYouLose(),
-                _ => new BadParseResult()
+                0b00001 => ParseRejectLogOn(),
+                0b00010 => ParseAcceptLogOn(),
+                0b00011 => ParseGameType(),
+                0b00100 => ParseSubmitBoard(),
+                0b00101 => ParseRejectBoard(),
+                0b00110 => ParseAcceptBoard(),
+                0b00111 => ParseRecallBoard(),
+                0b01000 => ParseFoundGame(),
+                0b01001 => ParseRejectGame(),
+                0b01010 => ParseAcceptGame(),
+                0b01011 => ParseGameExpired(),
+                0b01100 => ParseAssignRed(),
+                0b01101 => ParseAssignBlue(),
+                0b01110 => ParseMyGuess(),
+                0b01111 => ParseTheirGuess(),
+                0b10000 => ParseBadGuess(),
+                0b10001 => ParseHit(),
+                0b10010 => ParseMiss(),
+                0b10011 => ParseSunk(),
+                0b10100 => ParseYouWin(),
+                0b10101 => ParseYouLose(),
+                _ => false
             };
         }
 
-        private ParseResult ParseLogOn()
+        private bool ParseLogOn()
         {
-            if (_buffer.Length < 36)
-            {
-                return new IncompleteParseResult();
-            }
-
             var version = ParseUInt8();
             var username = ParseString(16);
             var password = ParseString(16);
+            _handler.Handle(new LogOnMessage(version, username, password));
+            return true;
+        }
 
-            var message = new LogOnMessage(version, username, password);
-            return new OkParseResult(message, Current);
+        private bool ParseRejectLogOn()
+        {
+            _handler.Handle(new RejectLogOnMessage(ParseUInt8()));
+            return true;
+        }
+
+        private bool ParseAcceptLogOn()
+        {
+            throw new NotImplementedException();
+        }
+
+        private bool ParseGameType()
+        {
+            throw new NotImplementedException();
+        }
+
+        private bool ParseSubmitBoard()
+        {
+            throw new NotImplementedException();
+        }
+
+        private bool ParseRejectBoard()
+        {
+            throw new NotImplementedException();
+        }
+
+        private bool ParseAcceptBoard()
+        {
+            throw new NotImplementedException();
+        }
+
+        private bool ParseRecallBoard()
+        {
+            throw new NotImplementedException();
+        }
+
+        private bool ParseFoundGame()
+        {
+            throw new NotImplementedException();
+        }
+
+        private bool ParseRejectGame()
+        {
+            throw new NotImplementedException();
+        }
+
+        private bool ParseAcceptGame()
+        {
+            throw new NotImplementedException();
+        }
+
+        private bool ParseGameExpired()
+        {
+            throw new NotImplementedException();
+        }
+
+        private bool ParseAssignRed()
+        {
+            throw new NotImplementedException();
+        }
+
+        private bool ParseAssignBlue()
+        {
+            throw new NotImplementedException();
+        }
+
+        private bool ParseMyGuess()
+        {
+            throw new NotImplementedException();
+        }
+
+        private bool ParseTheirGuess()
+        {
+            throw new NotImplementedException();
+        }
+
+        private bool ParseBadGuess()
+        {
+            throw new NotImplementedException();
+        }
+
+        private bool ParseHit()
+        {
+            throw new NotImplementedException();
+        }
+
+        private bool ParseMiss()
+        {
+            throw new NotImplementedException();
+        }
+
+        private bool ParseSunk()
+        {
+            throw new NotImplementedException();
+        }
+
+        private bool ParseYouWin()
+        {
+            throw new NotImplementedException();
+        }
+
+        private bool ParseYouLose()
+        {
+            throw new NotImplementedException();
         }
 
         private byte ParseUInt8()
@@ -87,114 +206,16 @@ namespace Battleship
 
         private byte[] Consume(int length)
         {
-            var bytes = _buffer.Slice(Current, length).ToArray();
-            Current = _buffer.GetPosition(length, Current);
-            return bytes;
-        }
-
-        private static ParseResult ParseRejectLogOn()
-        {
-            throw new NotImplementedException();
-        }
-
-        private static ParseResult ParseAcceptLogOn()
-        {
-            throw new NotImplementedException();
-        }
-
-        private static ParseResult ParseGameType()
-        {
-            throw new NotImplementedException();
-        }
-
-        private static ParseResult ParseSubmitBoard()
-        {
-            throw new NotImplementedException();
-        }
-
-        private static ParseResult ParseRejectBoard()
-        {
-            throw new NotImplementedException();
-        }
-
-        private static ParseResult ParseAcceptBoard()
-        {
-            throw new NotImplementedException();
-        }
-
-        private static ParseResult ParseRecallBoard()
-        {
-            throw new NotImplementedException();
-        }
-
-        private static ParseResult ParseFoundGame()
-        {
-            throw new NotImplementedException();
-        }
-
-        private static ParseResult ParseRejectGame()
-        {
-            throw new NotImplementedException();
-        }
-
-        private static ParseResult ParseAcceptGame()
-        {
-            throw new NotImplementedException();
-        }
-
-        private static ParseResult ParseGameExpired()
-        {
-            throw new NotImplementedException();
-        }
-
-        private static ParseResult ParseAssignRed()
-        {
-            throw new NotImplementedException();
-        }
-
-        private static ParseResult ParseAssignBlue()
-        {
-            throw new NotImplementedException();
-        }
-
-        private static ParseResult ParseMyGuess()
-        {
-            throw new NotImplementedException();
-        }
-
-        private static ParseResult ParseTheirGuess()
-        {
-            throw new NotImplementedException();
-        }
-
-        private static ParseResult ParseBadGuess()
-        {
-            throw new NotImplementedException();
-        }
-
-        private static ParseResult ParseHit()
-        {
-            throw new NotImplementedException();
-        }
-
-        private static ParseResult ParseMiss()
-        {
-            throw new NotImplementedException();
-        }
-
-        private static ParseResult ParseSunk()
-        {
-            throw new NotImplementedException();
-        }
-
-        private static ParseResult ParseYouWin()
-        {
-            throw new NotImplementedException();
-        }
-
-        private static ParseResult ParseYouLose()
-        {
-            throw new NotImplementedException();
+            try
+            {
+                var data = _buffer.Slice(_buffer.Start, length).ToArray();
+                _buffer = _buffer.Slice(_buffer.GetPosition(length), _buffer.End);
+                return data;
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new IncompleteException();
+            }
         }
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 
-namespace Battleship.Server
+namespace Battleship
 {
     public sealed class BspListener : IDisposable
     {
