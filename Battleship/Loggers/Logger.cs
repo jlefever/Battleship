@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
 
-namespace Battleship
+namespace Battleship.Loggers
 {
-    public class Logger
+    public class Logger : ILogger
     {
         private readonly TextWriter _writer;
 

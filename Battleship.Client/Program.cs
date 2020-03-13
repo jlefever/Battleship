@@ -3,6 +3,7 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using Battleship.Loggers;
 
 namespace Battleship.Client
 {
@@ -27,7 +28,7 @@ namespace Battleship.Client
             }
 
             var sender = new BspSender(socket, logger, unparser);
-            var handler = new PrintingMessageHandler(logger);
+            var handler = new LoggingMessageHandler(logger);
             var parser = new MessageParser(handler);
             var receiver = new BspReceiver(logger);
             _ = receiver.StartReceivingAsync(socket, parser);

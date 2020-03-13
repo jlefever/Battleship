@@ -1,13 +1,14 @@
 ﻿using Battleship.Messages;
 using System.Threading.Tasks;
+using Battleship.Loggers;
 
 namespace Battleship
 {
-    public class PrintingMessageHandler : IMessageHandler
+    public class LoggingMessageHandler : IMessageHandler
     {
-        private readonly Logger _logger;
+        private readonly ILogger _logger;
 
-        public PrintingMessageHandler(Logger logger)
+        public LoggingMessageHandler(ILogger logger)
         {
             _logger = logger;
         }

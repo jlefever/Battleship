@@ -6,22 +6,7 @@ namespace Battleship.DFA
     {
         public void ServerReceived(NetworkStateContext context, IMessage message)
         {
-            if (message.TypeId != MessageTypeId.LogOn)
-            {
-                context.Disconnect();
-            }
-
-            var attempt = (LogOnMessage)message;
-
-            if (attempt.Username == "jason")
-            {
-                context.Send(new BasicMessage(MessageTypeId.AcceptLogOn));
-                context.SetState(NetworkStateId.WaitingForBoard);
-                return;
-            }
-
-            context.Send(new RejectLogOnMessage(0));
-            context.SetState(NetworkStateId.NotConnected);
+            context.Disconnect();
         }
 
         public void ClientReceived(NetworkStateContext context, IMessage message)

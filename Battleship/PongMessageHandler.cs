@@ -1,14 +1,15 @@
 ﻿using Battleship.Messages;
 using System.Threading.Tasks;
+using Battleship.Loggers;
 
 namespace Battleship
 {
     public class PongMessageHandler : IMessageHandler
     {
         private readonly BspSender _sender;
-        private readonly Logger _logger;
+        private readonly ILogger _logger;
 
-        public PongMessageHandler(BspSender sender, Logger logger)
+        public PongMessageHandler(BspSender sender, ILogger logger)
         {
             _sender = sender;
             _logger = logger;

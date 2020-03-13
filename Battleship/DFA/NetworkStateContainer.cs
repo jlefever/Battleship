@@ -1,4 +1,5 @@
 ﻿using System;
+using Battleship.Repositories;
 
 namespace Battleship.DFA
 {
@@ -15,9 +16,9 @@ namespace Battleship.DFA
         private readonly TheirTurnState _theirTurn;
         private readonly WaitingState _waiting;
 
-        public NetworkStateContainer()
+        public NetworkStateContainer(UserRepository repository)
         {
-            _notConnected = new NotConnectedState();
+            _notConnected = new NotConnectedState(repository);
             _pendingLogOn = new PendingLogOnState();
             _waitingForBoard = new WaitingForBoardState();
             _pendingBoard = new PendingBoardState();

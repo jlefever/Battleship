@@ -1,14 +1,15 @@
 ﻿using System.IO.Pipelines;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using Battleship.Loggers;
 
 namespace Battleship
 {
     public class BspReceiver
     {
-        private readonly Logger _logger;
+        private readonly ILogger _logger;
 
-        public BspReceiver(Logger logger)
+        public BspReceiver(ILogger logger)
         {
             _logger = logger;
         }

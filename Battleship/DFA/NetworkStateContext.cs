@@ -13,7 +13,7 @@ namespace Battleship.DFA
         {
             _sender = sender;
             _container = container;
-            _state = new NotConnectedState();
+            _state = container.GetNetworkState(NetworkStateId.NotConnected);
         }
 
         public void Send(IMessage message)

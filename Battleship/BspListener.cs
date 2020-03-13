@@ -1,14 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using Battleship.Loggers;
 
 namespace Battleship
 {
     public sealed class BspListener
     {
-        private readonly Logger _logger;
+        private readonly ILogger _logger;
 
-        public BspListener(Logger logger)
+        public BspListener(ILogger logger)
         {
             _logger = logger;
         }

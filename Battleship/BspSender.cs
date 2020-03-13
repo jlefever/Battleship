@@ -3,6 +3,7 @@ using Battleship.Messages;
 using System.Linq;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using Battleship.Loggers;
 
 namespace Battleship
 {
@@ -10,10 +11,10 @@ namespace Battleship
     {
         private readonly Socket _socket;
         private readonly NetworkStream _stream;
-        private readonly Logger _logger;
+        private readonly ILogger _logger;
         private readonly MessageUnparser _unparser;
 
-        public BspSender(Socket socket, Logger logger, MessageUnparser unparser)
+        public BspSender(Socket socket, ILogger logger, MessageUnparser unparser)
         {
             _socket = socket;
             _stream = new NetworkStream(socket);
@@ -24,7 +25,7 @@ namespace Battleship
         // Todo: Cancellation token?
         public async Task SendAsync(IMessage message)
         {
-            _logger.LogInfo($"Sending {message} to {_socket.RemoteEndPoint}...");
+            _logger.LogInfo($"Sending {message}...");
             await _stream.WriteAsync(message.Accept(_unparser).ToArray());
         }
 
