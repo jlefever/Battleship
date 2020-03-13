@@ -11,7 +11,7 @@ namespace Battleship.DFA
                 context.Disconnect();
             }
 
-            context.SetState(new PendingLogOnState());
+            context.SetState(NetworkStateId.PendingLogOn);
             context.ServerReceived(message);
         }
 

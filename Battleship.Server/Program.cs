@@ -19,7 +19,8 @@ namespace Battleship.Server
             await foreach (var socket in listener.StartListeningAsync(ip))
             {
                 var sender = new BspSender(socket, logger, unparser);
-                var context = new NetworkStateContext(sender);
+                var container = new NetworkStateContainer();
+                var context = new NetworkStateContext(sender, container);
                 var handler = new ServerMessageHandler(context, logger);
                 _ = receiver.StartReceivingAsync(socket, new MessageParser(handler));
             }

@@ -16,25 +16,25 @@ namespace Battleship.DFA
             if (attempt.Username == "jason")
             {
                 context.Send(new BasicMessage(MessageTypeId.AcceptLogOn));
-                context.SetState(new WaitingForBoardState());
+                context.SetState(NetworkStateId.WaitingForBoard);
                 return;
             }
 
             context.Send(new RejectLogOnMessage(0));
-            context.SetState(new NotConnectedState());
+            context.SetState(NetworkStateId.NotConnected);
         }
 
         public void ClientReceived(NetworkStateContext context, IMessage message)
         {
             if (message.TypeId == MessageTypeId.RejectLogOn)
             {
-                context.SetState(new NotConnectedState());
+                context.SetState(NetworkStateId.NotConnected);
                 return;
             }
 
             if (message.TypeId == MessageTypeId.AcceptLogOn)
             {
-                context.SetState(new WaitingForBoardState());
+                context.SetState(NetworkStateId.WaitingForBoard);
                 return;
             }
 

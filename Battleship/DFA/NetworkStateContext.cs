@@ -6,11 +6,13 @@ namespace Battleship.DFA
     public class NetworkStateContext
     {
         private readonly BspSender _sender;
+        private readonly NetworkStateContainer _container;
         private INetworkState _state;
 
-        public NetworkStateContext(BspSender sender)
+        public NetworkStateContext(BspSender sender, NetworkStateContainer container)
         {
             _sender = sender;
+            _container = container;
             _state = new NotConnectedState();
         }
 
@@ -24,9 +26,9 @@ namespace Battleship.DFA
             throw new NotImplementedException();
         }
 
-        public void SetState(INetworkState state)
+        public void SetState(NetworkStateId id)
         {
-            _state = state;
+            _state = _container.GetNetworkState(id);
         }
 
         public void ServerReceived(IMessage message)
