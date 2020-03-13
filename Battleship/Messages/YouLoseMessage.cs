@@ -1,15 +1,15 @@
-﻿namespace Battleship.Messages
+﻿using Battleship.DataTypes;
+
+namespace Battleship.Messages
 {
     public class YouLoseMessage : IMessage
     {
-        public YouLoseMessage(byte rowIndex, byte colIndex)
+        public YouLoseMessage(Position position)
         {
-            RowIndex = rowIndex;
-            ColIndex = colIndex;
+            Position = position;
         }
 
-        public byte RowIndex { get; }
-        public byte ColIndex { get; }
+        public Position Position { get; }
 
         public MessageTypeId TypeId => MessageTypeId.YouLose;
 
@@ -20,8 +20,7 @@
 
         public override string ToString()
         {
-            return $"{nameof(TypeId)}: {TypeId}, {nameof(RowIndex)}: {RowIndex}" +
-                   $", {nameof(ColIndex)}: {ColIndex}";
+            return $"{nameof(TypeId)}: {TypeId}, {nameof(Position)}: {Position}";
         }
     }
 }

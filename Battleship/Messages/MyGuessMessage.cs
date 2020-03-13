@@ -1,15 +1,15 @@
-﻿namespace Battleship.Messages
+﻿using Battleship.DataTypes;
+
+namespace Battleship.Messages
 {
     public class MyGuessMessage : IMessage
     {
-        public MyGuessMessage(byte rowIndex, byte colIndex)
+        public MyGuessMessage(Position position)
         {
-            RowIndex = rowIndex;
-            ColIndex = colIndex;
+            Position = position;
         }
 
-        public byte RowIndex { get; set; }
-        public byte ColIndex { get; set; }
+        public Position Position { get; }
 
         public MessageTypeId TypeId => MessageTypeId.MyGuess;
 
@@ -20,8 +20,7 @@
 
         public override string ToString()
         {
-            return $"{nameof(TypeId)}: {TypeId}, {nameof(RowIndex)}: " +
-                   $"{RowIndex}, {nameof(ColIndex)}: {ColIndex}";
+            return $"{nameof(TypeId)}: {TypeId}, {nameof(Position)}: {Position}";
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Battleship.DataTypes;
 
 namespace Battleship
 {
@@ -129,7 +130,8 @@ namespace Battleship
                 return false;
             }
 
-            _handler.HandleAsync(new GameTypeMessage(gameTypeId, boardWidth, boardHeight, ships.ToArray()));
+            var gameType = new GameType(gameTypeId, boardWidth, boardHeight, ships.ToArray());
+            _handler.HandleAsync(new GameTypeMessage(gameType));
             return true;
         }
 
@@ -150,25 +152,22 @@ namespace Battleship
 
         private bool ParseMyGuess()
         {
-            var row = ParseUInt8();
-            var col = ParseUInt8();
-            _handler.HandleAsync(new MyGuessMessage(row, col));
+            var position = new Position(ParseUInt8(), ParseUInt8());
+            _handler.HandleAsync(new MyGuessMessage(position));
             return true;
         }
 
         private bool ParseTheirGuess()
         {
-            var row = ParseUInt8();
-            var col = ParseUInt8();
-            _handler.HandleAsync(new TheirGuessMessage(row, col));
+            var position = new Position(ParseUInt8(), ParseUInt8());
+            _handler.HandleAsync(new TheirGuessMessage(position));
             return true;
         }
 
         private bool ParseYouLose()
         {
-            var row = ParseUInt8();
-            var col = ParseUInt8();
-            _handler.HandleAsync(new YouLoseMessage(row, col));
+            var position = new Position(ParseUInt8(), ParseUInt8());
+            _handler.HandleAsync(new YouLoseMessage(position));
             return true;
         }
 

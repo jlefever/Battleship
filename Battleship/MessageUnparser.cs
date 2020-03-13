@@ -28,18 +28,18 @@ namespace Battleship
 
         public IEnumerable<byte> VisitGameTypeMessage(GameTypeMessage message)
         {
-            if (message.Ships.Length > BspConstants.MaxShips)
+            if (message.GameType.Ships.Length > BspConstants.MaxShips)
             {
                 throw new MessageUnparserException($"Must not have more than {BspConstants.MaxShips} ships.");
             }
 
-            var diff = BspConstants.MaxShips - message.Ships.Length;
-            var ships = message.Ships.Concat(Enumerable.Repeat((byte)0, diff));
+            var diff = BspConstants.MaxShips - message.GameType.Ships.Length;
+            var ships = message.GameType.Ships.Concat(Enumerable.Repeat((byte)0, diff));
 
             return GetHeaderBytes(message.TypeId)
-                .Concat(GetBytes(message.GameTypeId))
-                .Concat(GetBytes(message.BoardWidth))
-                .Concat(GetBytes(message.BoardHeight))
+                .Concat(GetBytes(message.GameType.GameTypeId))
+                .Concat(GetBytes(message.GameType.BoardWidth))
+                .Concat(GetBytes(message.GameType.BoardHeight))
                 .Concat(ships);
         }
 
@@ -57,22 +57,22 @@ namespace Battleship
         public IEnumerable<byte> VisitMyGuessMessage(MyGuessMessage message)
         {
             return GetHeaderBytes(message.TypeId)
-                .Concat(GetBytes(message.RowIndex))
-                .Concat(GetBytes(message.ColIndex));
+                .Concat(GetBytes(message.Position.Row))
+                .Concat(GetBytes(message.Position.Col));
         }
 
         public IEnumerable<byte> VisitTheirGuessMessage(TheirGuessMessage message)
         {
             return GetHeaderBytes(message.TypeId)
-                .Concat(GetBytes(message.RowIndex))
-                .Concat(GetBytes(message.ColIndex));
+                .Concat(GetBytes(message.Position.Row))
+                .Concat(GetBytes(message.Position.Col));
         }
 
         public IEnumerable<byte> VisitYouLoseMessage(YouLoseMessage message)
         {
             return GetHeaderBytes(message.TypeId)
-                .Concat(GetBytes(message.RowIndex))
-                .Concat(GetBytes(message.ColIndex));
+                .Concat(GetBytes(message.Position.Row))
+                .Concat(GetBytes(message.Position.Col));
         }
 
         private static IEnumerable<byte> GetHeaderBytes(MessageTypeId typeId)

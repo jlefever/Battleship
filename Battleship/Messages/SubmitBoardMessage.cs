@@ -1,17 +1,18 @@
 ﻿using System.Collections.Generic;
+using Battleship.DataTypes;
 
 namespace Battleship.Messages
 {
     public class SubmitBoardMessage : IMessage
     {
-        public SubmitBoardMessage(byte gameTypeId, IEnumerable<ShipLocation> locations)
+        public SubmitBoardMessage(byte gameTypeId, IEnumerable<Placement> shipPlacements)
         {
             GameTypeId = gameTypeId;
-            Locations = locations;
+            ShipPlacements = shipPlacements;
         }
 
         public byte GameTypeId { get; }
-        public IEnumerable<ShipLocation> Locations { get; }
+        public IEnumerable<Placement> ShipPlacements { get; }
 
         public MessageTypeId TypeId => MessageTypeId.SubmitBoard;
 
@@ -23,7 +24,7 @@ namespace Battleship.Messages
         public override string ToString()
         {
             return $"{nameof(TypeId)}: {TypeId}, {nameof(GameTypeId)}: " +
-                   $"{GameTypeId}, {nameof(Locations)}: {Locations}";
+                   $"{GameTypeId}, {nameof(ShipPlacements)}: {ShipPlacements}";
         }
     }
 }
