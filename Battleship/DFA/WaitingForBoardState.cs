@@ -1,15 +1,16 @@
 ﻿using Battleship.Messages;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Battleship.DFA
 {
-    public class WaitingForBoardState : IClientState
+    public class WaitingForBoardState : INetworkState
     {
-        public IEnumerable<Type> ValidMessageTypes => throw new NotImplementedException();
+        public void ServerReceived(NetworkStateContext context, IMessage message)
+        {
+            throw new NotImplementedException();
+        }
 
-        public void Received(ClientStateContext context, IMessage message)
+        public void ClientReceived(NetworkStateContext context, IMessage message)
         {
             throw new NotImplementedException();
         }

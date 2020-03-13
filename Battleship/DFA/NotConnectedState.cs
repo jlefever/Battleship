@@ -1,16 +1,23 @@
 ﻿using Battleship.Messages;
-using System;
 
 namespace Battleship.DFA
 {
-    public class NotConnectedState : IClientState
+    public class NotConnectedState : INetworkState
     {
-        public void Received(ClientStateContext context, IMessage message)
+        public void ServerReceived(NetworkStateContext context, IMessage message)
         {
-            // Client should not receive anything in this state.
-            // Signal an illegal operation and sever the connection.
-            // context.Abort(); ?
-            throw new NotImplementedException();
+            if (message.TypeId != MessageTypeId.LogOn)
+            {
+                context.Disconnect();
+            }
+
+            context.SetState(new PendingLogOnState());
+            context.ServerReceived(message);
+        }
+
+        public void ClientReceived(NetworkStateContext context, IMessage message)
+        {
+            context.Disconnect();
         }
     }
 }

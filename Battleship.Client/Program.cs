@@ -27,7 +27,7 @@ namespace Battleship.Client
             }
 
             var sender = new BspSender(socket, logger, unparser);
-            var handler = new PongMessageHandler(sender, logger);
+            var handler = new PrintingMessageHandler(logger);
             var parser = new MessageParser(handler);
             var receiver = new BspReceiver(logger);
             _ = receiver.StartReceivingAsync(socket, parser);
@@ -39,8 +39,8 @@ namespace Battleship.Client
 
                 if (input == "send")
                 {
-                    var message = new BasicMessage(MessageTypeId.YouWin);
-                    await sender.SendAsync(message);
+                    var m = new LogOnMessage(0, "jason", "password");
+                    await sender.SendAsync(m);
                 }
             }
         }

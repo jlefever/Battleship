@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Threading.Tasks;
+using Battleship.DFA;
 
 namespace Battleship.Server
 {
@@ -18,7 +19,8 @@ namespace Battleship.Server
             await foreach (var socket in listener.StartListeningAsync(ip))
             {
                 var sender = new BspSender(socket, logger, unparser);
-                var handler = new PongMessageHandler(sender, logger);
+                var context = new NetworkStateContext(sender);
+                var handler = new ServerMessageHandler(context, logger);
                 _ = receiver.StartReceivingAsync(socket, new MessageParser(handler));
             }
         }

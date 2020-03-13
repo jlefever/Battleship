@@ -1,33 +1,44 @@
 ﻿using Battleship.Messages;
-using System;
-using System.Collections.Generic;
 
 namespace Battleship.DFA
 {
-    public class PendingLogOnState : IClientState
+    public class PendingLogOnState : INetworkState
     {
-        // I don't know where to use these yet.
-        public IEnumerable<Type> ValidMessageTypes { get; } = new[] 
-        { 
-            typeof(RejectLogOnMessage),
-            //typeof(AcceptLogOnMessage)
-        };
-
-        public void Received(ClientStateContext context, IMessage message)
+        public void ServerReceived(NetworkStateContext context, IMessage message)
         {
-            if (context is null)
+            if (message.TypeId != MessageTypeId.LogOn)
             {
-                throw new ArgumentNullException(nameof(context));
+                context.Disconnect();
             }
 
-            if (message is RejectLogOnMessage)
+            var attempt = (LogOnMessage)message;
+
+            if (attempt.Username == "jason")
             {
-                context.State = new NotConnectedState();
+                context.Send(new BasicMessage(MessageTypeId.AcceptLogOn));
+                context.SetState(new WaitingForBoardState());
+                return;
             }
 
-            
+            context.Send(new RejectLogOnMessage(0));
+            context.SetState(new NotConnectedState());
+        }
 
-            context.Abort();
+        public void ClientReceived(NetworkStateContext context, IMessage message)
+        {
+            if (message.TypeId == MessageTypeId.RejectLogOn)
+            {
+                context.SetState(new NotConnectedState());
+                return;
+            }
+
+            if (message.TypeId == MessageTypeId.AcceptLogOn)
+            {
+                context.SetState(new WaitingForBoardState());
+                return;
+            }
+
+            context.Disconnect();
         }
     }
 }
