@@ -29,15 +29,15 @@ namespace Battleship
 
         public IEnumerable<byte> VisitGameTypeMessage(GameTypeMessage message)
         {
-            if (message.GameType.Ships.Length > BspConstants.MaxShips)
+            if (message.GameType.ShipLengths.Count > BspConstants.MaxShips)
             {
                 throw new MessageUnparserException($"Must not have more than {BspConstants.MaxShips} ships.");
             }
 
-            var diff = BspConstants.MaxShips - message.GameType.Ships.Length;
+            var diff = BspConstants.MaxShips - message.GameType.ShipLengths.Count;
 
             // Pad ship list to the required number of bytes.
-            var ships = message.GameType.Ships.Concat(Enumerable.Repeat((byte)0, diff));
+            var ships = message.GameType.ShipLengths.Concat(Enumerable.Repeat((byte)0, diff));
 
             return GetHeaderBytes(message.TypeId)
                 .Concat(FromByte(message.GameType.GameTypeId))
@@ -49,6 +49,8 @@ namespace Battleship
         public IEnumerable<byte> VisitSubmitBoardMessage(SubmitBoardMessage message)
         {
             var bytes = GetHeaderBytes(message.TypeId);
+
+            bytes = bytes.Concat(FromByte(message.GameTypeId));
 
             foreach (var placement in message.ShipPlacements)
             {

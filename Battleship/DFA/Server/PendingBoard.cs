@@ -1,28 +1,37 @@
-﻿using Battleship.Loggers;
-using Battleship.Messages;
+﻿using Battleship.Messages;
 using System;
+using System.Collections.Generic;
 
 namespace Battleship.DFA.Server
 {
     public class PendingBoard : IPendingBoard
     {
-        private readonly BspSender _sender;
-        private readonly ILogger _logger;
+        public IEnumerable<MessageTypeId> ValidReceives => Array.Empty<MessageTypeId>();
 
-        public PendingBoard(BspSender sender, ILogger logger)
+        public IEnumerable<MessageTypeId> ValidSends => new[]
         {
-            _sender = sender;
-            _logger = logger;
-        }
+            MessageTypeId.AcceptBoard,
+            MessageTypeId.RejectBoard
+        };
 
         public void Received(NetworkStateContext context, IMessage message)
         {
-            throw new NotImplementedException();
+            // This is left intentionally blank.
         }
 
         public void Sent(NetworkStateContext context, IMessage message)
         {
-            // This is intentionally left blank.
+            switch (message.TypeId)
+            {
+                case MessageTypeId.AcceptBoard:
+                    context.SetState(NetworkStateId.WaitingForGame);
+                    return;
+                case MessageTypeId.RejectBoard:
+                    context.SetState(NetworkStateId.WaitingForBoard);
+                    return;
+                default:
+                    throw new ArgumentException();
+            }
         }
     }
 }

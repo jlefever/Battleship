@@ -1,28 +1,34 @@
-﻿using Battleship.Loggers;
-using Battleship.Messages;
+﻿using Battleship.Messages;
 using System;
+using System.Collections.Generic;
 
 namespace Battleship.DFA.Server
 {
     public class PendingLogOn : IPendingLogOn
     {
-        private readonly BspSender _sender;
-        private readonly ILogger _logger;
+        public IEnumerable<MessageTypeId> ValidReceives => Array.Empty<MessageTypeId>();
 
-        public PendingLogOn(BspSender sender, ILogger logger)
+        public IEnumerable<MessageTypeId> ValidSends => new[]
         {
-            _sender = sender;
-            _logger = logger;
-        }
+            MessageTypeId.AcceptLogOn,
+            MessageTypeId.RejectLogOn
+        };
 
         public void Received(NetworkStateContext context, IMessage message)
         {
-            throw new NotImplementedException();
+            // There are no valid messages for the server to receive in this state.
         }
 
         public void Sent(NetworkStateContext context, IMessage message)
         {
-            // This is intentionally left blank.
+            if (message.TypeId == MessageTypeId.AcceptLogOn)
+            {
+                context.SetState(NetworkStateId.WaitingForBoard);
+            }
+            else
+            {
+                context.SetState(NetworkStateId.NotConnected);
+            }
         }
     }
 }

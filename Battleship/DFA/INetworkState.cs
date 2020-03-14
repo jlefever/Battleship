@@ -1,9 +1,13 @@
-﻿using Battleship.Messages;
+﻿using System;
+using System.Collections.Generic;
+using Battleship.Messages;
 
 namespace Battleship.DFA
 {
     public interface INetworkState
     {
+        IEnumerable<MessageTypeId> ValidReceives { get; }
+        IEnumerable<MessageTypeId> ValidSends { get; }
         void Received(NetworkStateContext context, IMessage message);
         void Sent(NetworkStateContext context, IMessage message);
     }

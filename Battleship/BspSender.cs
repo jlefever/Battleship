@@ -1,9 +1,8 @@
-﻿using System;
+﻿using Battleship.Loggers;
 using Battleship.Messages;
+using System;
 using System.Linq;
 using System.Net.Sockets;
-using System.Threading.Tasks;
-using Battleship.Loggers;
 
 namespace Battleship
 {
@@ -25,11 +24,17 @@ namespace Battleship
         }
 
         // Todo: Cancellation token?
-        public async Task SendAsync(IMessage message)
+        public void Send(IMessage message)
         {
+            if (!_socket.Connected)
+            {
+                _logger.LogError($"Failed to send {message} on not connected socket");
+                return;
+            }
+
             _logger.LogInfo($"Sending {message}...");
             _handler.Handle(message);
-            await _stream.WriteAsync(message.Accept(_unparser).ToArray());
+            _stream.WriteAsync(message.Accept(_unparser).ToArray());
         }
 
         public void Disconnect()

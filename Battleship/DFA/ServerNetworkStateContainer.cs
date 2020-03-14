@@ -5,14 +5,16 @@ namespace Battleship.DFA
 {
     public class ServerNetworkStateContainer : NetworkStateContainer
     {
-        public ServerNetworkStateContainer(BspSender sender, ILogger logger, UserRepository repository)
+        public ServerNetworkStateContainer(BspServerState state, BspSender sender,
+            ILogger logger, GameTypeRepository gameTypeRepo, UserRepository userRepo,
+            MatchMaker matchMaker)
         {
-            NotConnected = new Server.NotConnected(sender, logger, repository);
-            PendingLogOn = new Server.PendingLogOn(sender, logger);
-            WaitingForBoard = new Server.WaitingForBoard(sender, logger);
-            PendingBoard = new Server.PendingBoard(sender, logger);
-            WaitingForGame = new Server.WaitingForGame(sender, logger);
-            FoundGame = new Server.FoundGame(sender, logger);
+            NotConnected = new Server.NotConnected(state, sender, gameTypeRepo, userRepo);
+            PendingLogOn = new Server.PendingLogOn();
+            WaitingForBoard = new Server.WaitingForBoard(state, sender, logger, gameTypeRepo, matchMaker);
+            PendingBoard = new Server.PendingBoard();
+            WaitingForGame = new Server.WaitingForGame(state, sender, logger, matchMaker);
+            FoundGame = new Server.FoundGame(state, sender, logger);
             InitialGame = new Server.InitialGame(sender, logger);
             MyTurn = new Server.MyTurn(sender, logger);
             TheirTurn = new Server.TheirTurn(sender, logger);

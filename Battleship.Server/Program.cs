@@ -18,15 +18,20 @@ namespace Battleship.Server
             var unparser = new MessageUnparser();
             var listener = new BspListener(generalLogger);
             var receiver = new BspReceiver(generalLogger);
-            var gameTypeRepository = CreateGameTypeRepository();
+            var gameTypeRepo = CreateGameTypeRepository();
+            var userRepo = CreateUserRepository();
+            var matchMaker = new MatchMaker();
 
             await foreach (var socket in listener.StartListeningAsync(ip))
             {
                 var logger = new EndPointLogger(Console.Out, socket.RemoteEndPoint);
                 var senderHandler = new MultiMessageHandler();
                 var sender = new BspSender(socket, logger, unparser, senderHandler);
-                var container = new ServerNetworkStateContainer(sender, logger, new UserRepository());
-                var context = new NetworkStateContext(container);
+
+                var serverState = new BspServerState();
+                var container = new ServerNetworkStateContainer(serverState, sender,
+                    logger, gameTypeRepo, userRepo, matchMaker);
+                var context = new NetworkStateContext(sender, container);
 
                 // I don't even want to do this. Just testing.
                 senderHandler.AddHandler(new SentMessageHandler(context));
@@ -35,7 +40,7 @@ namespace Battleship.Server
                 receiverHandler.AddHandler(new LoggingMessageHandler(logger));
                 receiverHandler.AddHandler(new ReceiveMessageHandler(context));
                 
-                _ = receiver.StartReceivingAsync(socket, new MessageParser(receiverHandler, gameTypeRepository));
+                _ = receiver.StartReceivingAsync(socket, new MessageParser(receiverHandler, gameTypeRepo));
             }
         }
 
@@ -46,6 +51,16 @@ namespace Battleship.Server
             repo.TryAdd(new GameType(1, 15, 15, new byte[] { 2 }));
             repo.TryAdd(new GameType(2, 5, 5, new byte[] { 1 }));
             repo.TryAdd(new GameType(3, 10, 10, new byte[] {3, 2, 1}));
+
+            return repo;
+        }
+
+        private static UserRepository CreateUserRepository()
+        {
+            var repo = new UserRepository();
+
+            repo.TryAdd(new User("jason", "password"));
+            repo.TryAdd(new User("sam", "password"));
 
             return repo;
         }

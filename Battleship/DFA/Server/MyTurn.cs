@@ -1,6 +1,7 @@
 ﻿using Battleship.Loggers;
 using Battleship.Messages;
 using System;
+using System.Collections.Generic;
 
 
 namespace Battleship.DFA.Server
@@ -16,6 +17,10 @@ namespace Battleship.DFA.Server
             _logger = logger;
         }
 
+        public IEnumerable<MessageTypeId> ValidReceives => Array.Empty<MessageTypeId>();
+
+        public IEnumerable<MessageTypeId> ValidSends => Array.Empty<MessageTypeId>();
+
         public void Received(NetworkStateContext context, IMessage message)
         {
             throw new NotImplementedException();
@@ -23,7 +28,7 @@ namespace Battleship.DFA.Server
 
         public void Sent(NetworkStateContext context, IMessage message)
         {
-            // This is intentionally left blank.
+            // This is left intentionally blank.
         }
     }
 }

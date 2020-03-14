@@ -1,8 +1,10 @@
 ﻿using Battleship.Messages;
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using Battleship.DataTypes;
 using Battleship.DFA;
 using Battleship.Loggers;
 using Battleship.Repositories;
@@ -32,10 +34,10 @@ namespace Battleship.Client
             var senderHandler = new MultiMessageHandler();
             var sender = new BspSender(socket, logger, unparser, senderHandler);
 
-            var container = new ClientNetworkStateContainer(sender, logger);
-            var context = new NetworkStateContext(container);
+            // var container = new ClientNetworkStateContainer(sender, logger);
+            // var context = new NetworkStateContext(container);
 
-            senderHandler.AddHandler(new SentMessageHandler(context));
+            // senderHandler.AddHandler(new SentMessageHandler(context));
 
             var receiverHandler = new MultiMessageHandler();
             receiverHandler.AddHandler(new LoggingMessageHandler(logger));
@@ -45,15 +47,35 @@ namespace Battleship.Client
             var receiver = new BspReceiver(logger);
             _ = receiver.StartReceivingAsync(socket, parser);
 
+            // REPL
+
             while (true)
             {
                 Console.Write(">> ");
                 var input = Console.ReadLine();
 
-                if (input == "send")
+                if (input == "logon")
                 {
-                    // var m = new LogOnMessage(0, "jason", "password");
-                    await sender.SendAsync(new BasicMessage(MessageTypeId.Hit));
+                    sender.Send(new LogOnMessage(BspConstants.Version, "jason", "password"));
+                }
+
+                if (input == "submitboard")
+                {
+                    var placements = new List<Placement>
+                    {
+                        new Placement(new Position(0, 0), false),
+                        new Placement(new Position(1, 0), false),
+                        new Placement(new Position(2, 0), false),
+                        new Placement(new Position(3, 0), false),
+                        new Placement(new Position(4, 0), false)
+                    };
+
+                    sender.Send(new SubmitBoardMessage(0, placements));
+                }
+
+                if (input == "recallboard")
+                {
+                    sender.Send(new BasicMessage(MessageTypeId.RecallBoard));
                 }
             }
         }

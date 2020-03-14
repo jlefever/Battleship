@@ -1,28 +1,28 @@
-﻿using System.Linq.Expressions;
+﻿using System.Collections.Generic;
 
 namespace Battleship.DataTypes
 {
     public class GameType
     {
-        public GameType(byte gameTypeId, byte boardWidth, byte boardHeight, byte[] ships)
+        public GameType(byte gameTypeId, byte boardWidth, byte boardHeight, IList<byte> shipLengths)
         {
             GameTypeId = gameTypeId;
             BoardWidth = boardWidth;
             BoardHeight = boardHeight;
-            Ships = ships;
+            ShipLengths = shipLengths;
         }
 
         public byte GameTypeId { get; }
         public byte BoardWidth { get; }
         public byte BoardHeight { get; }
-        public byte[] Ships { get; }
+        public IList<byte> ShipLengths { get; }
 
         public override string ToString()
         {
             return $"{nameof(GameTypeId)}: {GameTypeId}, " +
                    $"{nameof(BoardWidth)}: {BoardWidth}, " +
                    $"{nameof(BoardHeight)}: {BoardHeight}, " +
-                   $"{nameof(Ships)}: {Ships}";
+                   $"{nameof(ShipLengths)}: {ShipLengths}";
         }
     }
 }

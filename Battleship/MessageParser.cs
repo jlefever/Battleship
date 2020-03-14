@@ -153,7 +153,7 @@ namespace Battleship
             {
                 var ship = UInt8();
 
-                // Ships must be listed in descending order.
+                // ShipLengths must be listed in descending order.
                 if (ship > prevShip) return false;
 
                 // Only add ships if they are non-zero.
@@ -180,8 +180,8 @@ namespace Battleship
 
             var placements = new List<Placement>();
 
-            // We are expecting the exact number of Positions as there are Ships in the GameType.
-            for (var i = 0; i < gameType.Ships.Length; i++)
+            // We are expecting the exact number of Positions as there are ShipLengths in the GameType.
+            for (var i = 0; i < gameType.ShipLengths.Count; i++)
             {
                 var row = UInt8();
                 var col = UInt8();

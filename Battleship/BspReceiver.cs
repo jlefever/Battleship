@@ -39,6 +39,7 @@ namespace Battleship
             }
 
             await reader.CompleteAsync();
+            socket.Disconnect(false);
             _logger.LogInfo("Disconnected from " + socket.RemoteEndPoint);
         }
     }

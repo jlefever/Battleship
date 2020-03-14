@@ -5,6 +5,7 @@
         ShipOverlap = 0,
         OutOfBounds = 1,
         UnsupportedGameType = 2,
-        BadSubmission = 3
+        WrongShips = 3,
+        BadSubmission = 4
     }
 }
