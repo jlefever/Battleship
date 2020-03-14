@@ -13,20 +13,28 @@ namespace Battleship
         private readonly NetworkStream _stream;
         private readonly ILogger _logger;
         private readonly MessageUnparser _unparser;
+        private readonly IMessageHandler _handler;
 
-        public BspSender(Socket socket, ILogger logger, MessageUnparser unparser)
+        public BspSender(Socket socket, ILogger logger, MessageUnparser unparser, IMessageHandler handler)
         {
             _socket = socket;
             _stream = new NetworkStream(socket);
             _logger = logger;
             _unparser = unparser;
+            _handler = handler;
         }
 
         // Todo: Cancellation token?
         public async Task SendAsync(IMessage message)
         {
             _logger.LogInfo($"Sending {message}...");
+            _handler.Handle(message);
             await _stream.WriteAsync(message.Accept(_unparser).ToArray());
+        }
+
+        public void Disconnect()
+        {
+            _socket.Disconnect(false);
         }
 
         public void Dispose()

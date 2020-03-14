@@ -1,6 +1,5 @@
 ﻿using Battleship.Messages;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Battleship
 {
@@ -18,14 +17,12 @@ namespace Battleship
             _handlers.Add(handler);
         }
 
-        public Task HandleAsync(IMessage message)
+        public void Handle(IMessage message)
         {
             foreach (var handler in _handlers)
             {
-                handler.HandleAsync(message);
+                handler.Handle(message);
             }
-
-            return Task.CompletedTask;
         }
     }
 }

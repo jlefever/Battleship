@@ -1,6 +1,5 @@
-﻿using Battleship.Messages;
-using System.Threading.Tasks;
-using Battleship.Loggers;
+﻿using Battleship.Loggers;
+using Battleship.Messages;
 
 namespace Battleship
 {
@@ -13,10 +12,9 @@ namespace Battleship
             _logger = logger;
         }
 
-        public Task HandleAsync(IMessage message)
+        public void Handle(IMessage message)
         {
             _logger.LogInfo("Received " + message);
-            return Task.CompletedTask;
         }
     }
 }

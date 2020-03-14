@@ -121,7 +121,7 @@ namespace Battleship
         /// <returns>true</returns>
         private bool HandleBasic(MessageTypeId id)
         {
-            _handler.HandleAsync(new BasicMessage(id));
+            _handler.Handle(new BasicMessage(id));
             return true;
         }
 
@@ -130,13 +130,13 @@ namespace Battleship
             var version = UInt8();
             var username = String16();
             var password = String16();
-            _handler.HandleAsync(new LogOnMessage(version, username, password));
+            _handler.Handle(new LogOnMessage(version, username, password));
             return true;
         }
 
         private bool ParseRejectLogOn()
         {
-            _handler.HandleAsync(new RejectLogOnMessage(UInt8()));
+            _handler.Handle(new RejectLogOnMessage(UInt8()));
             return true;
         }
 
@@ -166,7 +166,7 @@ namespace Battleship
             if (!ships.Any()) return false;
 
             var gameType = new GameType(gameTypeId, boardWidth, boardHeight, ships.ToArray());
-            _handler.HandleAsync(new GameTypeMessage(gameType));
+            _handler.Handle(new GameTypeMessage(gameType));
             return true;
         }
 
@@ -190,35 +190,35 @@ namespace Battleship
                 placements.Add(new Placement(new Position(row, col), vertical));
             }
 
-            _handler.HandleAsync(new SubmitBoardMessage(gameTypeId, placements));
+            _handler.Handle(new SubmitBoardMessage(gameTypeId, placements));
             return true;
         }
 
         private bool ParseRejectBoard()
         {
             var error = (RejectBoardErrorId)UInt8();
-            _handler.HandleAsync(new RejectBoardMessage(error));
+            _handler.Handle(new RejectBoardMessage(error));
             return true;
         }
 
         private bool ParseMyGuess()
         {
             var position = new Position(UInt8(), UInt8());
-            _handler.HandleAsync(new MyGuessMessage(position));
+            _handler.Handle(new MyGuessMessage(position));
             return true;
         }
 
         private bool ParseTheirGuess()
         {
             var position = new Position(UInt8(), UInt8());
-            _handler.HandleAsync(new TheirGuessMessage(position));
+            _handler.Handle(new TheirGuessMessage(position));
             return true;
         }
 
         private bool ParseYouLose()
         {
             var position = new Position(UInt8(), UInt8());
-            _handler.HandleAsync(new YouLoseMessage(position));
+            _handler.Handle(new YouLoseMessage(position));
             return true;
         }
 

@@ -3,7 +3,9 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using Battleship.DFA;
 using Battleship.Loggers;
+using Battleship.Repositories;
 
 namespace Battleship.Client
 {
@@ -27,9 +29,19 @@ namespace Battleship.Client
                 logger.LogError($"Failed to connect to {endpoint}.");
             }
 
-            var sender = new BspSender(socket, logger, unparser);
-            var handler = new LoggingMessageHandler(logger);
-            var parser = new MessageParser(handler);
+            var senderHandler = new MultiMessageHandler();
+            var sender = new BspSender(socket, logger, unparser, senderHandler);
+
+            var container = new ClientNetworkStateContainer(sender, logger);
+            var context = new NetworkStateContext(container);
+
+            senderHandler.AddHandler(new SentMessageHandler(context));
+
+            var receiverHandler = new MultiMessageHandler();
+            receiverHandler.AddHandler(new LoggingMessageHandler(logger));
+            // receiverHandler.AddHandler(new ReceiveMessageHandler(context));
+
+            var parser = new MessageParser(receiverHandler, new GameTypeRepository());
             var receiver = new BspReceiver(logger);
             _ = receiver.StartReceivingAsync(socket, parser);
 
@@ -40,8 +52,8 @@ namespace Battleship.Client
 
                 if (input == "send")
                 {
-                    var m = new LogOnMessage(0, "jason", "password");
-                    await sender.SendAsync(m);
+                    // var m = new LogOnMessage(0, "jason", "password");
+                    await sender.SendAsync(new BasicMessage(MessageTypeId.Hit));
                 }
             }
         }

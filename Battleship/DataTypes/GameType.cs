@@ -1,4 +1,6 @@
-﻿namespace Battleship.DataTypes
+﻿using System.Linq.Expressions;
+
+namespace Battleship.DataTypes
 {
     public class GameType
     {

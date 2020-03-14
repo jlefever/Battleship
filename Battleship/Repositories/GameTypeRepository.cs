@@ -9,7 +9,11 @@ namespace Battleship.Repositories
 
         public GameTypeRepository()
         {
-            _dictionary = new Dictionary<byte, GameType>();
+            _dictionary = new Dictionary<byte, GameType>
+            {
+                // The classic GameType that is always supported.
+                { 0, new GameType(0, 10, 10, new byte[] {5, 4, 3, 3, 2}) }
+            };
         }
 
         public bool TryAdd(GameType gameType)
@@ -25,13 +29,6 @@ namespace Battleship.Repositories
         public IEnumerable<GameType> GetAll()
         {
             return _dictionary.Values;
-
-            //return new[]
-            //{
-            //    new GameType(1, 15, 15, new byte[] {2}),
-            //    new GameType(2, 5, 5, new byte[] {1}),
-            //    new GameType(1, 10, 10, new byte[] {3, 2, 1})
-            //};
         }
     }
 }

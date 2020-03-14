@@ -1,10 +1,9 @@
-﻿using System.Threading.Tasks;
-using Battleship.Messages;
+﻿using Battleship.Messages;
 
 namespace Battleship
 {
     public interface IMessageHandler
     {
-        Task HandleAsync(IMessage message);
+        void Handle(IMessage message);
     }
 }

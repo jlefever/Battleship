@@ -1,22 +1,27 @@
-﻿using Battleship.Messages;
+﻿using Battleship.Loggers;
+using Battleship.Messages;
 using Battleship.Repositories;
 
-namespace Battleship.DFA
+namespace Battleship.DFA.Server
 {
-    public class NotConnectedState : INetworkState
+    public class NotConnected : INotConnected
     {
+        private readonly BspSender _sender;
+        private readonly ILogger _logger;
         private readonly UserRepository _repository;
 
-        public NotConnectedState(UserRepository repository)
+        public NotConnected(BspSender sender, ILogger logger, UserRepository repository)
         {
+            _sender = sender;
+            _logger = logger;
             _repository = repository;
         }
 
-        public void ServerReceived(NetworkStateContext context, IMessage message)
+        public void Received(NetworkStateContext context, IMessage message)
         {
             if (message.TypeId != MessageTypeId.LogOn)
             {
-                context.Disconnect();
+                _sender.Disconnect();
             }
 
             // Change state to PendingLogOn so if the client sends any messages
@@ -27,18 +32,18 @@ namespace Battleship.DFA
 
             if (_repository.IsValidUser(attempt.Username, attempt.Password))
             {
-                context.Send(new BasicMessage(MessageTypeId.AcceptLogOn));
+                _ = _sender.SendAsync(new BasicMessage(MessageTypeId.AcceptLogOn));
                 context.SetState(NetworkStateId.WaitingForBoard);
                 return;
             }
 
-            context.Send(new RejectLogOnMessage(BspConstants.Version));
+            _ = _sender.SendAsync(new RejectLogOnMessage(BspConstants.Version));
             context.SetState(NetworkStateId.NotConnected);
         }
 
-        public void ClientReceived(NetworkStateContext context, IMessage message)
+        public void Sent(NetworkStateContext context, IMessage message)
         {
-            context.Disconnect();
+            // This is intentionally left blank.
         }
     }
 }
