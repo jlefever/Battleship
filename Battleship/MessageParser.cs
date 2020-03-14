@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Battleship.DataTypes;
+using Battleship.Repositories;
 
 namespace Battleship
 {
@@ -13,12 +14,14 @@ namespace Battleship
         private class IncompleteException : Exception { }
 
         private readonly IMessageHandler _handler;
+        private readonly GameTypeRepository _gameTypeRepository;
         private ReadOnlySequence<byte> _buffer;
         private SequencePosition _messageStart;
 
-        public MessageParser(IMessageHandler handler)
+        public MessageParser(IMessageHandler handler, GameTypeRepository gameTypeRepository)
         {
             _handler = handler;
+            _gameTypeRepository = gameTypeRepository;
         }
 
         public SequencePosition? Parse(ReadOnlySequence<byte> buffer)
@@ -46,6 +49,8 @@ namespace Battleship
         private bool ParseMessage()
         {
             var id = (MessageTypeId)ParseUInt16();
+
+            // Ignore the extension bits
             ParseUInt8();
 
             return id switch
@@ -138,9 +143,28 @@ namespace Battleship
         private bool ParseSubmitBoard()
         {
             var gameTypeId = ParseUInt8();
-            // lookup gameTypeId in local GameTypeRepository
+            var isValid = _gameTypeRepository.TryGet(gameTypeId, out var gameType);
 
-            throw new NotImplementedException();
+            if (!isValid)
+            {
+                // Invalid game type
+                return false;
+            }
+
+            var placements = new List<Placement>();
+
+            // We are expecting the exact number of Positions as there are Ships in the GameType
+            for (var i = 0; i < gameType.Ships.Length; i++)
+            {
+                var row = ParseUInt8();
+                var col = ParseUInt8();
+                var vertical = ParseUInt8() != 0;
+
+                placements.Add(new Placement(new Position(row, col), vertical));
+            }
+
+            _handler.HandleAsync(new SubmitBoardMessage(gameTypeId, placements));
+            return true;
         }
 
         private bool ParseRejectBoard()
