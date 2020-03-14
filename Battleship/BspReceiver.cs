@@ -21,21 +21,21 @@ namespace Battleship
 
             while (true)
             {
+                // Suspend this method until reader returns data.
                 var result = await reader.ReadAsync();
-                var buffer = result.Buffer;
-                var position = parser.Parse(buffer);
 
-                if (position == null)
-                {
-                    break;
-                }
+                // Parse contents until we run out of valid & complete messages.
+                var position = parser.Parse(result.Buffer);
 
-                reader.AdvanceTo(position.Value, buffer.End);
+                // Disconnect if we receive any invalid data.
+                if (position == null) break;
 
-                if (result.IsCompleted)
-                {
-                    break;
-                }
+                // Tell the reader how much data we evaluated so it does not return
+                // data we have already seen.
+                reader.AdvanceTo(position.Value, result.Buffer.End);
+
+                // Break out if our client disconnects.
+                if (result.IsCompleted) break;
             }
 
             await reader.CompleteAsync();
