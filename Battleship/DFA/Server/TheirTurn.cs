@@ -18,16 +18,26 @@ namespace Battleship.DFA.Server
 
         public IEnumerable<MessageTypeId> ValidReceives => Array.Empty<MessageTypeId>();
 
-        public IEnumerable<MessageTypeId> ValidSends => Array.Empty<MessageTypeId>();
+        public IEnumerable<MessageTypeId> ValidSends => new []
+        {
+            MessageTypeId.TheirGuess,
+            MessageTypeId.YouLose
+        };
 
         public void Received(NetworkStateContext context, IMessage message)
         {
-            throw new NotImplementedException();
+            // This is left intentionally blank.
         }
 
         public void Sent(NetworkStateContext context, IMessage message)
         {
-            // This is left intentionally blank.
+            if (message.TypeId == MessageTypeId.TheirGuess)
+            {
+                context.SetState(NetworkStateId.MyTurn);
+                return;
+            }
+
+            context.SetState(NetworkStateId.WaitingForBoard);
         }
     }
 }

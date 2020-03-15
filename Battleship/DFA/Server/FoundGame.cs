@@ -1,4 +1,5 @@
-﻿using Battleship.DataTypes;
+﻿using System;
+using Battleship.DataTypes;
 using Battleship.Loggers;
 using Battleship.Messages;
 using Battleship.Repositories;
@@ -69,6 +70,18 @@ namespace Battleship.DFA.Server
                 // Let both know that the game has been accepted.
                 _sender.Send(new BasicMessage(MessageTypeId.AcceptGame));
                 opponent.Send(new BasicMessage(MessageTypeId.AcceptGame));
+
+                // Notify who goes first
+                if (_state.Match.PlayerGoesFirst)
+                {
+                    _sender.Send(new BasicMessage(MessageTypeId.AssignRed));
+                    opponent.Send(new BasicMessage(MessageTypeId.AssignBlue));
+                }
+                else
+                {
+                    _sender.Send(new BasicMessage(MessageTypeId.AssignBlue));
+                    opponent.Send(new BasicMessage(MessageTypeId.AssignRed));
+                }
             }
         }
 

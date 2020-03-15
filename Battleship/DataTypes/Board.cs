@@ -26,6 +26,9 @@ namespace Battleship.DataTypes
 
         public GuessResult Guess(Position position)
         {
+            // If they guess out of bounds that is a miss.
+            if (IsOutOfBounds(position)) return GuessResult.Miss;
+
             var shipIndex = _board[position.Row, position.Col];
 
             // If the shipIndex is 0, then there was no ship there.
@@ -82,7 +85,7 @@ namespace Battleship.DataTypes
 
         public bool IsOutOfBounds(Placement p, int shipIndex)
         {
-            if (p.Position.Row >= _height || p.Position.Col >= _width)
+            if (IsOutOfBounds(p.Position))
             {
                 return true;
             }
@@ -95,6 +98,11 @@ namespace Battleship.DataTypes
             }
 
             return p.Position.Col + length >= _width;
+        }
+
+        public bool IsOutOfBounds(Position p)
+        {
+            return p.Row >= _height || p.Col >= _width;
         }
 
         public bool IsOverlapping(Placement p, int shipIndex)

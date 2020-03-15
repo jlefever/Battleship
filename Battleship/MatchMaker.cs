@@ -1,4 +1,5 @@
-﻿using Battleship.DataTypes;
+﻿using System;
+using Battleship.DataTypes;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
@@ -9,11 +10,13 @@ namespace Battleship
     {
         private readonly IDictionary<string, UserBoard> _players;
         private readonly IDictionary<string, WriteOnceBlock<Match>> _blocks;
+        private readonly Random _random;
 
         public MatchMaker()
         {
             _players = new Dictionary<string, UserBoard>();
             _blocks = new Dictionary<string, WriteOnceBlock<Match>>();
+            _random = new Random();
         }
 
         public async Task<Match> FindMatchAsync(UserBoard player)
@@ -66,12 +69,18 @@ namespace Battleship
                 Remove(player.Username);
 
                 // Notify both async waiting contexts that a match has been found.
-                playerBlock.Post(new Match(player, opponent));
-                opponentBlock.Post(new Match(opponent, player));
+                var playerGoesFirst = FlipCoin();
+                playerBlock.Post(new Match(player, opponent, playerGoesFirst));
+                opponentBlock.Post(new Match(opponent, player, !playerGoesFirst));
 
                 // Stop searching through the players.
                 break;
             }
+        }
+
+        private bool FlipCoin()
+        {
+            return _random.NextDouble() >= 0.5;
         }
     }
 }

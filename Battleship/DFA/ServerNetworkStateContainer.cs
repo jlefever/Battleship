@@ -16,7 +16,7 @@ namespace Battleship.DFA
             WaitingForGame = new Server.WaitingForGame(state, sender, logger, matchMaker, userRepo);
             FoundGame = new Server.FoundGame(state, sender, logger, userRepo);
             InitialGame = new Server.InitialGame(sender, logger);
-            MyTurn = new Server.MyTurn(sender, logger);
+            MyTurn = new Server.MyTurn(state, sender, logger, userRepo);
             TheirTurn = new Server.TheirTurn(sender, logger);
             Waiting = new Server.Waiting(sender, logger);
         }
