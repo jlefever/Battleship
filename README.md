@@ -22,7 +22,7 @@ This is an implementation of a BSP Client and Server as described in the specifi
 
 (Note: These are not standalone .exe's.)
 
-1. Run `Battleship.Server.exe 127.0.0.1` or with any other IP you wish to bind to. This will also default to localhost.
+1. Run `Battleship.Server.exe 127.0.0.1` or with any other IP or hostname you wish to bind to. This will also default to localhost.
 
 2. Run at least two instances of `Battleship.Client.exe`. The clients should auto-discover the server. As a fallback, you can always specify the server IP address as a command line argument.
 

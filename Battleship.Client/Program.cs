@@ -1,6 +1,7 @@
 ﻿using Battleship.DFA;
 using Battleship.Loggers;
 using System;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
@@ -14,11 +15,28 @@ namespace Battleship.Client
             // Create a logger
             var logger = new Logger(Console.Out);
 
-            // If the user did not supply an IP, attempt to discover a server on the same subnet.
+            // If the user did not supply an IP or hostname, attempt to
+            // discover a server on the same subnet.
             IPEndPoint endPoint;
             if (args.Length > 0)
             {
-                endPoint = new IPEndPoint(IPAddress.Parse(args[0]), BspConstants.DefaultPort);
+                if (IPAddress.TryParse(args[0], out var ip))
+                {
+                    endPoint = new IPEndPoint(ip, BspConstants.DefaultPort);
+                }
+                else
+                {
+                    // Maybe the user supplied a hostname not an IP
+                    var addresses = Dns.GetHostAddresses(args[0]);
+
+                    if (addresses.Length < 1)
+                    {
+                        Console.WriteLine("Could not find hostname.");
+                        return;
+                    }
+
+                    endPoint = new IPEndPoint(addresses.Last(), BspConstants.DefaultPort);
+                }
             }
             else
             {
