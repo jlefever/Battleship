@@ -1,24 +1,21 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using Battleship.DataTypes;
-using Battleship.Loggers;
+using Battleship.DFA;
 using Battleship.Messages;
 using Battleship.Repositories;
-using System.Collections.Generic;
 
-namespace Battleship.DFA.Server
+namespace Battleship.Server.DFA
 {
     public class FoundGame : IFoundGame
     {
         private readonly BspServerState _state;
         private readonly BspSender _sender;
-        private readonly ILogger _logger;
         private readonly UserRepository _userRepo;
 
-        public FoundGame(BspServerState state, BspSender sender, ILogger logger, UserRepository userRepo)
+        public FoundGame(BspServerState state, BspSender sender, UserRepository userRepo)
         {
             _state = state;
             _sender = sender;
-            _logger = logger;
             _userRepo = userRepo;
         }
 

@@ -1,27 +1,20 @@
-﻿using Battleship.Loggers;
-using Battleship.Messages;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Battleship.DFA;
+using Battleship.Messages;
 
-namespace Battleship.DFA.Server
+namespace Battleship.Server.DFA
 {
-    public class InitialGame : IInitialGame
+    public class Waiting : IWaiting
     {
-        private readonly BspSender _sender;
-        private readonly ILogger _logger;
-
-        public InitialGame(BspSender sender, ILogger logger)
-        {
-            _sender = sender;
-            _logger = logger;
-        }
-
         public IEnumerable<MessageTypeId> ValidReceives => Array.Empty<MessageTypeId>();
 
         public IEnumerable<MessageTypeId> ValidSends => new[]
         {
-            MessageTypeId.AssignBlue,
-            MessageTypeId.AssignRed
+            MessageTypeId.Hit,
+            MessageTypeId.Miss,
+            MessageTypeId.Sunk,
+            MessageTypeId.YouWin
         };
 
         public void Received(NetworkStateContext context, IMessage message)
@@ -31,9 +24,9 @@ namespace Battleship.DFA.Server
 
         public void Sent(NetworkStateContext context, IMessage message)
         {
-            if (message.TypeId == MessageTypeId.AssignRed)
+            if (message.TypeId == MessageTypeId.YouWin)
             {
-                context.SetState(NetworkStateId.MyTurn);
+                context.SetState(NetworkStateId.WaitingForBoard);
                 return;
             }
 

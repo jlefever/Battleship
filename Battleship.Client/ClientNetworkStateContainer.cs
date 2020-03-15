@@ -1,6 +1,6 @@
-﻿using Battleship.Loggers;
+﻿using Battleship.DFA;
 
-namespace Battleship.DFA
+namespace Battleship.Client
 {
     public class ClientNetworkStateContainer : NetworkStateContainer
     {

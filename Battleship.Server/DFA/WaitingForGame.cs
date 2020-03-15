@@ -1,28 +1,21 @@
-﻿using System;
-using Battleship.Loggers;
-using Battleship.Messages;
-using System.Collections.Generic;
-using System.Timers;
+﻿using System.Collections.Generic;
 using Battleship.DataTypes;
+using Battleship.DFA;
+using Battleship.Messages;
 using Battleship.Repositories;
 
-namespace Battleship.DFA.Server
+namespace Battleship.Server.DFA
 {
     public class WaitingForGame : IWaitingForGame
     {
         private readonly BspServerState _state;
         private readonly BspSender _sender;
-        private readonly ILogger _logger;
-        private readonly MatchMaker _matchMaker;
         private readonly UserRepository _userRepo;
 
-        public WaitingForGame(BspServerState state, BspSender sender, ILogger logger,
-            MatchMaker matchMaker, UserRepository userRepo)
+        public WaitingForGame(BspServerState state, BspSender sender, UserRepository userRepo)
         {
             _state = state;
             _sender = sender;
-            _logger = logger;
-            _matchMaker = matchMaker;
             _userRepo = userRepo;
         }
 

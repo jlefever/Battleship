@@ -2,7 +2,7 @@
 using System.Timers;
 using Battleship.DataTypes;
 
-namespace Battleship
+namespace Battleship.Server
 {
     public sealed class BspServerState : IDisposable
     {

@@ -1,8 +1,9 @@
-﻿using Battleship.Messages;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Battleship.DFA;
+using Battleship.Messages;
 
-namespace Battleship.DFA.Server
+namespace Battleship.Server.DFA
 {
     public class PendingBoard : IPendingBoard
     {

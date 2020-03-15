@@ -27,20 +27,18 @@ namespace Battleship.Server
                 var logger = new EndPointLogger(Console.Out, socket.RemoteEndPoint);
                 var senderHandler = new MultiMessageHandler();
                 var sender = new BspSender(socket, logger, unparser, senderHandler);
-
-                var serverState = new BspServerState();
-                var container = new ServerNetworkStateContainer(serverState, sender,
-                    logger, gameTypeRepo, userRepo, matchMaker);
+                var container = new ServerNetworkStateContainer(sender, gameTypeRepo,
+                    userRepo, matchMaker);
                 var context = new NetworkStateContext(sender, container);
-
-                // I don't even want to do this. Just testing.
+                senderHandler.AddHandler(LoggingMessageHandler.ForSending(logger));
                 senderHandler.AddHandler(new SentMessageHandler(context));
 
                 var receiverHandler = new MultiMessageHandler();
-                receiverHandler.AddHandler(new LoggingMessageHandler(logger));
+                receiverHandler.AddHandler(LoggingMessageHandler.ForReceiving(logger));
                 receiverHandler.AddHandler(new ReceiveMessageHandler(context));
                 
-                _ = receiver.StartReceivingAsync(socket, new MessageParser(receiverHandler, gameTypeRepo));
+                var parser = new MessageParser(receiverHandler, gameTypeRepo);
+                _ = receiver.StartReceivingAsync(socket, parser);
             }
         }
 

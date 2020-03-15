@@ -1,10 +1,10 @@
 ﻿using System;
-using Battleship.DataTypes;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using Battleship.DataTypes;
 
-namespace Battleship
+namespace Battleship.Server
 {
     public class MatchMaker
     {

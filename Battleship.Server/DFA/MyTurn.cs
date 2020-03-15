@@ -1,29 +1,26 @@
-﻿using Battleship.Loggers;
-using Battleship.Messages;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Battleship.DataTypes;
+using Battleship.DFA;
+using Battleship.Messages;
 using Battleship.Repositories;
 
-
-namespace Battleship.DFA.Server
+namespace Battleship.Server.DFA
 {
     public class MyTurn : IMyTurn
     {
         private readonly BspServerState _state;
         private readonly BspSender _sender;
-        private readonly ILogger _logger;
         private readonly UserRepository _userRepo;
 
-        public MyTurn(BspServerState state, BspSender sender, ILogger logger, UserRepository userRepo)
+        public MyTurn(BspServerState state, BspSender sender, UserRepository userRepo)
         {
             _state = state;
             _sender = sender;
-            _logger = logger;
             _userRepo = userRepo;
         }
 
-        public IEnumerable<MessageTypeId> ValidReceives => new []
+        public IEnumerable<MessageTypeId> ValidReceives => new[]
         {
             MessageTypeId.MyGuess
         };
@@ -35,7 +32,7 @@ namespace Battleship.DFA.Server
             // Only valid receive is MyGuess
             context.SetState(NetworkStateId.Waiting);
 
-            var guess = ((MyGuessMessage) message).Position;
+            var guess = ((MyGuessMessage)message).Position;
             var guessResult = _state.Match.Opponent.Board.Guess(guess);
 
             var id = guessResult switch

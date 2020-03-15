@@ -1,24 +1,15 @@
-﻿using Battleship.Loggers;
-using Battleship.Messages;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Battleship.DFA;
+using Battleship.Messages;
 
-namespace Battleship.DFA.Server
+namespace Battleship.Server.DFA
 {
     public class TheirTurn : ITheirTurn
     {
-        private readonly BspSender _sender;
-        private readonly ILogger _logger;
-
-        public TheirTurn(BspSender sender, ILogger logger)
-        {
-            _sender = sender;
-            _logger = logger;
-        }
-
         public IEnumerable<MessageTypeId> ValidReceives => Array.Empty<MessageTypeId>();
 
-        public IEnumerable<MessageTypeId> ValidSends => new []
+        public IEnumerable<MessageTypeId> ValidSends => new[]
         {
             MessageTypeId.TheirGuess,
             MessageTypeId.YouLose

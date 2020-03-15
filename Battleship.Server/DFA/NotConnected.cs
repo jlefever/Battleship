@@ -1,9 +1,10 @@
-﻿using Battleship.Messages;
-using Battleship.Repositories;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Battleship.DFA;
+using Battleship.Messages;
+using Battleship.Repositories;
 
-namespace Battleship.DFA.Server
+namespace Battleship.Server.DFA
 {
     public class NotConnected : INotConnected
     {

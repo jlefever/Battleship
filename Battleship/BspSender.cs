@@ -32,7 +32,6 @@ namespace Battleship
                 return;
             }
 
-            _logger.LogInfo($"Sending {message}...");
             _handler.Handle(message);
             _stream.WriteAsync(message.Accept(_unparser).ToArray());
         }

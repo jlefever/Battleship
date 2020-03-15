@@ -1,13 +1,12 @@
-﻿using Battleship.Messages;
+﻿using Battleship.DataTypes;
+using Battleship.Loggers;
+using Battleship.Messages;
+using Battleship.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using Battleship.DataTypes;
-using Battleship.DFA;
-using Battleship.Loggers;
-using Battleship.Repositories;
 
 namespace Battleship.Client
 {
@@ -40,7 +39,7 @@ namespace Battleship.Client
             // senderHandler.AddHandler(new SentMessageHandler(context));
 
             var receiverHandler = new MultiMessageHandler();
-            receiverHandler.AddHandler(new LoggingMessageHandler(logger));
+            receiverHandler.AddHandler(LoggingMessageHandler.ForReceiving(logger));
             // receiverHandler.AddHandler(new ReceiveMessageHandler(context));
 
             var parser = new MessageParser(receiverHandler, new GameTypeRepository());
@@ -54,9 +53,10 @@ namespace Battleship.Client
                 Console.Write(">> ");
                 var input = Console.ReadLine();
 
-                if (input == "logon")
+                if (input.StartsWith("logon"))
                 {
-                    sender.Send(new LogOnMessage(BspConstants.Version, "jason", "password"));
+                    var username = input.Split(' ')[1];
+                    sender.Send(new LogOnMessage(BspConstants.Version, username, "password"));
                 }
 
                 if (input == "submitboard")
@@ -76,6 +76,26 @@ namespace Battleship.Client
                 if (input == "recallboard")
                 {
                     sender.Send(new BasicMessage(MessageTypeId.RecallBoard));
+                }
+
+                if (input == "acceptgame")
+                {
+                    sender.Send(new BasicMessage(MessageTypeId.AcceptGame));
+                }
+
+                if (input == "rejectgame")
+                {
+                    sender.Send(new BasicMessage(MessageTypeId.RejectGame));
+                }
+
+                if (input.StartsWith("guess"))
+                {
+                    var strings = input.Split(' ');
+
+                    var row = Convert.ToByte(strings[1]);
+                    var col = Convert.ToByte(strings[2]);
+
+                    sender.Send(new MyGuessMessage(new Position(row, col)));
                 }
             }
         }
