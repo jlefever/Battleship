@@ -103,7 +103,6 @@ namespace Battleship
                 MessageTypeId.AssignBlue => HandleBasic(id),
                 MessageTypeId.MyGuess => ParseMyGuess(),
                 MessageTypeId.TheirGuess => ParseTheirGuess(),
-                MessageTypeId.BadGuess => HandleBasic(id),
                 MessageTypeId.Hit => HandleBasic(id),
                 MessageTypeId.Miss => HandleBasic(id),
                 MessageTypeId.Sunk => HandleBasic(id),

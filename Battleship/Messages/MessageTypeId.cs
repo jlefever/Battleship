@@ -18,11 +18,10 @@
         AssignBlue = 13,
         MyGuess = 14,
         TheirGuess = 15,
-        BadGuess = 16,
-        Hit = 17,
-        Miss = 18,
-        Sunk = 19,
-        YouWin = 20,
-        YouLose = 21
+        Hit = 16,
+        Miss = 17,
+        Sunk = 18,
+        YouWin = 19,
+        YouLose = 20
     }
 }
