@@ -1,13 +1,9 @@
-﻿using Battleship.DataTypes;
+﻿using Battleship.DFA;
 using Battleship.Loggers;
-using Battleship.Messages;
-using Battleship.Repositories;
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using Battleship.DFA;
 
 namespace Battleship.Client
 {

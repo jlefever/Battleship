@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Battleship.DataTypes;
 using Battleship.DFA;
 using Battleship.Loggers;
-using Battleship.Repositories;
 
 namespace Battleship.Server
 {

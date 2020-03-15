@@ -1,7 +1,7 @@
-﻿using Battleship.DataTypes;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Battleship.DataTypes;
 
-namespace Battleship.Repositories
+namespace Battleship
 {
     public class GameTypeRepository
     {

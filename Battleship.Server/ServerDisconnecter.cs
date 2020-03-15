@@ -1,5 +1,4 @@
 ﻿using Battleship.Loggers;
-using Battleship.Repositories;
 using System.Net.Sockets;
 
 namespace Battleship.Server

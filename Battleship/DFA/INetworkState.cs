@@ -1,6 +1,5 @@
-﻿using System;
+﻿using Battleship.Messages;
 using System.Collections.Generic;
-using Battleship.Messages;
 
 namespace Battleship.DFA
 {

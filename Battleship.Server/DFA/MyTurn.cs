@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Battleship.DataTypes;
 using Battleship.DFA;
 using Battleship.Messages;
-using Battleship.Repositories;
 
 namespace Battleship.Server.DFA
 {

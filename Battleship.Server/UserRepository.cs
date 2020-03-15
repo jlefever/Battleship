@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Net.Sockets;
-using System.Runtime.InteropServices.ComTypes;
 using Battleship.DataTypes;
 
-namespace Battleship.Repositories
+namespace Battleship.Server
 {
     public class UserRepository
     {
