@@ -2,8 +2,8 @@
 using Battleship.DFA;
 using Battleship.Loggers;
 using System;
-using System.Collections.Generic;
 using System.Net;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 
 namespace Battleship.Server
@@ -12,7 +12,14 @@ namespace Battleship.Server
     {
         public static async Task Main(string[] args)
         {
-            var ip = ReadArgs(args);
+            if (args.Length != 1)
+            {
+                Console.WriteLine("Must include the IP address to listen on as the only arguement.");
+            }
+
+            var localIp = IPAddress.Parse(args[0]);
+            var localEndPoint = new IPEndPoint(localIp, BspConstants.DefaultPort);
+            _ = StartUdpListing(localEndPoint);
 
             var generalLogger = new Logger(Console.Out);
             var unparser = new MessageUnparser();
@@ -21,7 +28,7 @@ namespace Battleship.Server
             var userRepo = CreateUserRepository();
             var matchMaker = new MatchMaker();
 
-            await foreach (var socket in listener.StartListeningAsync(ip))
+            await foreach (var socket in listener.StartListeningAsync(localEndPoint))
             {
                 var logger = new EndPointLogger(Console.Out, socket.RemoteEndPoint);
                 var disconnecter = new ServerDisconnecter(logger, socket, userRepo, matchMaker);
@@ -43,23 +50,31 @@ namespace Battleship.Server
             }
         }
 
-        private static IPEndPoint ReadArgs(IReadOnlyList<string> args)
+        private static async Task StartUdpListing(IPEndPoint endPoint)
         {
-            switch (args.Count)
+            // Create a UDP client (wrapper around socket) for listening for broadcasts
+            using var listener = new UdpClient(endPoint.Port);
+            listener.EnableBroadcast = true;
+
+            while (true)
             {
-                case 0:
-                    return new IPEndPoint(IPAddress.Loopback, BspConstants.DefaultPort);
-                case 1 when !args[0].Contains(':'):
-                    return new IPEndPoint(IPAddress.Parse(args[0]), BspConstants.DefaultPort);
-                case 1:
-                    {
-                        var input = args[0].Split(':');
-                        var ip = IPAddress.Parse(input[0]);
-                        var port = Convert.ToInt32(input[1]);
-                        return new IPEndPoint(ip, port);
-                    }
-                default:
-                    throw new Exception("Too many command line arguments!");
+                // Async wait for a broadcast to be received
+                var result = await listener.ReceiveAsync();
+
+                // Use the IP of the received broadcast and the port of the server to make an endpoint
+                var remoteEndPoint = new IPEndPoint(result.RemoteEndPoint.Address, endPoint.Port);
+
+                // Create a TCP socket
+                var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+                // Connect to the device that sent the broadcast
+                socket.Connect(remoteEndPoint);
+
+                // Send the server IP to them
+                socket.Send(endPoint.Address.GetAddressBytes());
+
+                // Release the TCP socket
+                socket.Dispose();
             }
         }
 
