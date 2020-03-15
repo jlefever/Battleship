@@ -33,9 +33,6 @@ namespace Battleship
                 // Tell the reader how much data we evaluated so it does not return
                 // data we have already seen.
                 reader.AdvanceTo(position.Value, result.Buffer.End);
-
-                // Break out if our client disconnects.
-                if (result.IsCompleted) break;
             }
 
             await reader.CompleteAsync();

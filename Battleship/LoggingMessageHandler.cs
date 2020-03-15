@@ -29,6 +29,7 @@ namespace Battleship
             if (_forSending)
             {
                 _logger.LogInfo("Sending " + message);
+                return;
             }
 
             _logger.LogInfo("Received " + message);

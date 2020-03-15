@@ -1,22 +1,23 @@
-﻿using Battleship.DFA;
+﻿using Battleship.Client.DFA;
+using Battleship.DFA;
 
 namespace Battleship.Client
 {
     public class ClientNetworkStateContainer : NetworkStateContainer
     {
-        //public ClientNetworkStateContainer(BspSender sender, ILogger logger)
-        //{
-        //    NotConnected = new Client.NotConnected(sender, logger);
-        //    PendingLogOn = new Client.PendingLogOn(sender, logger);
-        //    WaitingForBoard = new Client.WaitingForBoard(sender, logger);
-        //    PendingBoard = new Client.PendingBoard(sender, logger);
-        //    WaitingForGame = new Client.WaitingForGame(sender, logger);
-        //    FoundGame = new Client.FoundGame(sender, logger);
-        //    InitialGame = new Client.InitialGame(sender, logger);
-        //    MyTurn = new Client.MyTurn(sender, logger);
-        //    TheirTurn = new Client.TheirTurn(sender, logger);
-        //    Waiting = new Client.Waiting(sender, logger);
-        //}
+        public ClientNetworkStateContainer(Prompter prompter)
+        {
+            NotConnected = new NotConnected();
+            PendingLogOn = new PendingLogOn(prompter);
+            WaitingForBoard = new WaitingForBoard();
+            PendingBoard = new PendingBoard(prompter);
+            WaitingForGame = new WaitingForGame(prompter);
+            FoundGame = new FoundGame(prompter);
+            InitialGame = new InitialGame(prompter);
+            MyTurn = new MyTurn();
+            TheirTurn = new TheirTurn(prompter);
+            Waiting = new Waiting(prompter);
+        }
 
         public override INotConnected NotConnected { get; }
         public override IPendingLogOn PendingLogOn { get; }

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using Battleship.DFA;
 
 namespace Battleship.Client
 {
@@ -22,82 +23,33 @@ namespace Battleship.Client
 
             try
             {
-                logger.LogInfo($"Attempting to connect to {endpoint}...");
+                logger.LogInfo($"Attempting to connect to {endpoint}");
                 socket.Connect(endpoint);
             }
             catch (SocketException)
             {
-                logger.LogError($"Failed to connect to {endpoint}.");
+                logger.LogError($"Failed to connect to {endpoint}");
             }
 
             var senderHandler = new MultiMessageHandler();
             var sender = new BspSender(socket, logger, unparser, senderHandler);
+            var prompter = new Prompter(sender);
+            var container = new ClientNetworkStateContainer(prompter);
+            var context = new NetworkStateContext(sender, container);
 
-            // var container = new ClientNetworkStateContainer(sender, logger);
-            // var context = new NetworkStateContext(container);
-
-            // senderHandler.AddHandler(new SentMessageHandler(context));
+            senderHandler.AddHandler(LoggingMessageHandler.ForSending(logger));
+            senderHandler.AddHandler(new SentMessageHandler(context));
 
             var receiverHandler = new MultiMessageHandler();
             receiverHandler.AddHandler(LoggingMessageHandler.ForReceiving(logger));
-            // receiverHandler.AddHandler(new ReceiveMessageHandler(context));
+            receiverHandler.AddHandler(new ReceiveMessageHandler(context));
 
             var parser = new MessageParser(receiverHandler, new GameTypeRepository());
             var receiver = new BspReceiver(logger);
-            _ = receiver.StartReceivingAsync(socket, parser);
 
-            // REPL
-
-            while (true)
-            {
-                Console.Write(">> ");
-                var input = Console.ReadLine();
-
-                if (input.StartsWith("logon"))
-                {
-                    var username = input.Split(' ')[1];
-                    sender.Send(new LogOnMessage(BspConstants.Version, username, "password"));
-                }
-
-                if (input == "submitboard")
-                {
-                    var placements = new List<Placement>
-                    {
-                        new Placement(new Position(0, 0), false),
-                        new Placement(new Position(1, 0), false),
-                        new Placement(new Position(2, 0), false),
-                        new Placement(new Position(3, 0), false),
-                        new Placement(new Position(4, 0), false)
-                    };
-
-                    sender.Send(new SubmitBoardMessage(0, placements));
-                }
-
-                if (input == "recallboard")
-                {
-                    sender.Send(new BasicMessage(MessageTypeId.RecallBoard));
-                }
-
-                if (input == "acceptgame")
-                {
-                    sender.Send(new BasicMessage(MessageTypeId.AcceptGame));
-                }
-
-                if (input == "rejectgame")
-                {
-                    sender.Send(new BasicMessage(MessageTypeId.RejectGame));
-                }
-
-                if (input.StartsWith("guess"))
-                {
-                    var strings = input.Split(' ');
-
-                    var row = Convert.ToByte(strings[1]);
-                    var col = Convert.ToByte(strings[2]);
-
-                    sender.Send(new MyGuessMessage(new Position(row, col)));
-                }
-            }
+            var receivingTask = receiver.StartReceivingAsync(socket, parser);
+            prompter.PromptLogOn();
+            await receivingTask;
         }
     }
 }
