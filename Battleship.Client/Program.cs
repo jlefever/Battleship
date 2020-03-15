@@ -14,7 +14,7 @@ namespace Battleship.Client
             var logger = new Logger(Console.Out);
             var unparser = new MessageUnparser();
 
-            var endpoint = new IPEndPoint(IPAddress.Loopback, 9096);
+            var endpoint = new IPEndPoint(IPAddress.Loopback, BspConstants.DefaultPort);
             var socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
 
             try
