@@ -17,7 +17,6 @@ namespace Battleship.Server
             var generalLogger = new Logger(Console.Out);
             var unparser = new MessageUnparser();
             var listener = new BspListener(generalLogger);
-            var receiver = new BspReceiver(generalLogger);
             var gameTypeRepo = CreateGameTypeRepository();
             var userRepo = CreateUserRepository();
             var matchMaker = new MatchMaker();
@@ -25,11 +24,12 @@ namespace Battleship.Server
             await foreach (var socket in listener.StartListeningAsync(ip))
             {
                 var logger = new EndPointLogger(Console.Out, socket.RemoteEndPoint);
+                var disconnecter = new ServerDisconnecter(logger, socket, userRepo, matchMaker);
                 var senderHandler = new MultiMessageHandler();
                 var sender = new BspSender(socket, logger, unparser, senderHandler);
-                var container = new ServerNetworkStateContainer(sender, gameTypeRepo,
+                var container = new ServerNetworkStateContainer(sender, disconnecter, gameTypeRepo,
                     userRepo, matchMaker);
-                var context = new NetworkStateContext(sender, container);
+                var context = new NetworkStateContext(container, disconnecter);
                 senderHandler.AddHandler(LoggingMessageHandler.ForSending(logger));
                 senderHandler.AddHandler(new SentMessageHandler(context));
 
@@ -38,7 +38,8 @@ namespace Battleship.Server
                 receiverHandler.AddHandler(new ReceiveMessageHandler(context));
                 
                 var parser = new MessageParser(receiverHandler, gameTypeRepo);
-                _ = receiver.StartReceivingAsync(socket, parser);
+                var receiver = new BspReceiver(socket, disconnecter, parser, logger);
+                _ = receiver.StartReceivingAsync();
             }
         }
 

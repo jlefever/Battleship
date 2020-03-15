@@ -17,7 +17,8 @@ namespace Battleship.Client.DFA
         public IEnumerable<MessageTypeId> ValidReceives => new []
         {
             MessageTypeId.RejectBoard,
-            MessageTypeId.AcceptBoard
+            MessageTypeId.AcceptBoard,
+            MessageTypeId.GameType
         };
 
         public IEnumerable<MessageTypeId> ValidSends => Array.Empty<MessageTypeId>();
@@ -31,9 +32,14 @@ namespace Battleship.Client.DFA
                 return;
             }
 
-            context.SetState(NetworkStateId.WaitingForBoard);
-            _prompter.PromptInvalidBoard();
-            _prompter.PromptWaitingForBoard();
+            if (message.TypeId == MessageTypeId.RejectBoard)
+            {
+                context.SetState(NetworkStateId.WaitingForBoard);
+                _prompter.PromptInvalidBoard();
+                _prompter.PromptWaitingForBoard();
+            }
+
+            // Ignore GameType
         }
 
         public void Sent(NetworkStateContext context, IMessage message)

@@ -38,7 +38,7 @@ namespace Battleship.Client
 
         public void PromptWaitingForBoard()
         {
-            Write("Press ENTER to get a random board.");
+            Write("Press ENTER to get the default board.");
             Console.ReadLine();
 
             var placements = new List<Placement>
@@ -65,7 +65,7 @@ namespace Battleship.Client
 
         public void PromptFoundGame()
         {
-            WriteLine("Found an opponent! Accept match (Y/N)? ");
+            Write("Found an opponent! Accept match (Y/N)? ");
             var accept = ReadY();
             var id = accept ? MessageTypeId.AcceptGame : MessageTypeId.RejectGame;
             _sender.Send(new BasicMessage(id));
@@ -98,7 +98,7 @@ namespace Battleship.Client
 
         public void PromptMyTurn()
         {
-            WriteLine("Enter your guess (ex: \"4 3\"): ");
+            Write("Enter your guess (ex: \"4 3\"): ");
             var position = ReadPosition();
             _sender.Send(new MyGuessMessage(position));
         }

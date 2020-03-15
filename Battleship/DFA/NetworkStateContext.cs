@@ -5,14 +5,14 @@ namespace Battleship.DFA
 {
     public class NetworkStateContext
     {
-        private readonly BspSender _sender;
         private readonly NetworkStateContainer _container;
+        private readonly IBspDisconnecter _disconnecter;
         private INetworkState _state;
 
-        public NetworkStateContext(BspSender sender, NetworkStateContainer container)
+        public NetworkStateContext(NetworkStateContainer container, IBspDisconnecter disconnecter)
         {
-            _sender = sender;
             _container = container;
+            _disconnecter = disconnecter;
             _state = container.GetNetworkState(NetworkStateId.NotConnected);
         }
 
@@ -25,7 +25,7 @@ namespace Battleship.DFA
         {
             if (!_state.ValidReceives.Contains(message.TypeId))
             {
-                _sender.Disconnect();
+                _disconnecter.Disconnect();
                 return;
             }
 
@@ -36,7 +36,7 @@ namespace Battleship.DFA
         {
             if (!_state.ValidSends.Contains(message.TypeId))
             {
-                _sender.Disconnect();
+                _disconnecter.Disconnect();
                 return;
             }
 

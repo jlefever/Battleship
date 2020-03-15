@@ -6,8 +6,8 @@ namespace Battleship.Server
 {
     public class ServerNetworkStateContainer : NetworkStateContainer
     {
-        public ServerNetworkStateContainer(BspSender sender, GameTypeRepository gameTypeRepo,
-            UserRepository userRepo, MatchMaker matchMaker)
+        public ServerNetworkStateContainer(BspSender sender, IBspDisconnecter disconnecter, 
+            GameTypeRepository gameTypeRepo, UserRepository userRepo, MatchMaker matchMaker)
         {
             var state = new BspServerState();
 
@@ -15,10 +15,10 @@ namespace Battleship.Server
             PendingLogOn = new PendingLogOn();
             WaitingForBoard = new WaitingForBoard(state, sender, gameTypeRepo, matchMaker);
             PendingBoard = new PendingBoard();
-            WaitingForGame = new WaitingForGame(state, sender, userRepo);
-            FoundGame = new FoundGame(state, sender, userRepo);
+            WaitingForGame = new WaitingForGame(state, sender, disconnecter, userRepo);
+            FoundGame = new FoundGame(state, sender, disconnecter, userRepo);
             InitialGame = new InitialGame();
-            MyTurn = new MyTurn(state, sender, userRepo);
+            MyTurn = new MyTurn(state, sender, disconnecter, userRepo);
             TheirTurn = new TheirTurn();
             Waiting = new Waiting();
         }

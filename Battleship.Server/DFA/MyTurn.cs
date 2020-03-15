@@ -11,12 +11,15 @@ namespace Battleship.Server.DFA
     {
         private readonly BspServerState _state;
         private readonly BspSender _sender;
+        private readonly IBspDisconnecter _disconnecter;
         private readonly UserRepository _userRepo;
 
-        public MyTurn(BspServerState state, BspSender sender, UserRepository userRepo)
+        public MyTurn(BspServerState state, BspSender sender, IBspDisconnecter disconnecter,
+            UserRepository userRepo)
         {
             _state = state;
             _sender = sender;
+            _disconnecter = disconnecter;
             _userRepo = userRepo;
         }
 
@@ -50,7 +53,7 @@ namespace Battleship.Server.DFA
             if (!_userRepo.TryGetSender(_state.Match.Opponent.Username, out var opponent))
             {
                 // Somehow the opponent is not logged in.
-                _sender.Disconnect();
+                _disconnecter.Disconnect();
                 return;
             }
 

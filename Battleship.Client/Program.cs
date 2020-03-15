@@ -31,11 +31,12 @@ namespace Battleship.Client
                 logger.LogError($"Failed to connect to {endpoint}");
             }
 
+            var disconnecter = new ClientDisconnecter(logger, socket);
             var senderHandler = new MultiMessageHandler();
             var sender = new BspSender(socket, logger, unparser, senderHandler);
             var prompter = new Prompter(sender);
             var container = new ClientNetworkStateContainer(prompter);
-            var context = new NetworkStateContext(sender, container);
+            var context = new NetworkStateContext(container, disconnecter);
 
             senderHandler.AddHandler(LoggingMessageHandler.ForSending(logger));
             senderHandler.AddHandler(new SentMessageHandler(context));
@@ -45,9 +46,9 @@ namespace Battleship.Client
             receiverHandler.AddHandler(new ReceiveMessageHandler(context));
 
             var parser = new MessageParser(receiverHandler, new GameTypeRepository());
-            var receiver = new BspReceiver(logger);
+            var receiver = new BspReceiver(socket, disconnecter, parser, logger);
 
-            var receivingTask = receiver.StartReceivingAsync(socket, parser);
+            var receivingTask = receiver.StartReceivingAsync();
             prompter.PromptLogOn();
             await receivingTask;
         }

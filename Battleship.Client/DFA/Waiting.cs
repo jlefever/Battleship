@@ -40,13 +40,13 @@ namespace Battleship.Client.DFA
             {
                 case MessageTypeId.Hit:
                     _prompter.PromptYouHit();
-                    return;
+                    break;
                 case MessageTypeId.Sunk:
                     _prompter.PromptYouSunk();
-                    return;
+                    break;
                 case MessageTypeId.Miss:
                     _prompter.PromptYouMissed();
-                    return;
+                    break;
             }
 
             _prompter.PromptTheirTurn();

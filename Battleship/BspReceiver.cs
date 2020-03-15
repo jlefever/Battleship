@@ -1,23 +1,32 @@
-﻿using System.IO.Pipelines;
+﻿using System;
+using System.IO.Pipelines;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using Battleship.Loggers;
 
 namespace Battleship
 {
-    public class BspReceiver
+    public sealed class BspReceiver : IDisposable
     {
+        private readonly Socket _socket;
+        private readonly NetworkStream _stream;
         private readonly ILogger _logger;
+        private readonly IBspDisconnecter _disconnecter;
+        private readonly MessageParser _parser;
 
-        public BspReceiver(ILogger logger)
+        public BspReceiver(Socket socket, IBspDisconnecter disconnecter, MessageParser parser, ILogger logger)
         {
+            _socket = socket;
+            _stream = new NetworkStream(socket);
             _logger = logger;
+            _disconnecter = disconnecter;
+            _parser = parser;
         }
 
-        public async Task StartReceivingAsync(Socket socket, MessageParser parser)
+        public async Task StartReceivingAsync()
         {
-            var reader = PipeReader.Create(new NetworkStream(socket));
-            _logger.LogInfo("Connected to " + socket.RemoteEndPoint);
+            var reader = PipeReader.Create(_stream);
+            _logger.LogInfo("Connected to " + _socket.RemoteEndPoint);
 
             while (true)
             {
@@ -25,7 +34,7 @@ namespace Battleship
                 var result = await reader.ReadAsync();
 
                 // Parse contents until we run out of valid & complete messages.
-                var position = parser.Parse(result.Buffer);
+                var position = _parser.Parse(result.Buffer);
 
                 // Disconnect if we receive any invalid data.
                 if (position == null) break;
@@ -36,8 +45,13 @@ namespace Battleship
             }
 
             await reader.CompleteAsync();
-            socket.Disconnect(false);
-            _logger.LogInfo("Disconnected from " + socket.RemoteEndPoint);
+            _disconnecter.Disconnect();
+        }
+
+        public void Dispose()
+        {
+            _socket.Dispose();
+            _stream.Dispose();
         }
     }
 }

@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Net.Sockets;
+using System.Runtime.InteropServices.ComTypes;
 using Battleship.DataTypes;
 
 namespace Battleship.Repositories
@@ -48,6 +50,21 @@ namespace Battleship.Repositories
         public bool TryGetSender(string username, out BspSender sender)
         {
             return _senders.TryGetValue(username, out sender);
+        }
+
+        public bool TryGetUsernameBySocket(Socket socket, out string username)
+        {
+            foreach (var sender in _senders)
+            {
+                if (sender.Value.Socket == socket)
+                {
+                    username = sender.Key;
+                    return true;
+                }
+            }
+
+            username = null;
+            return false;
         }
 
         public void LogOut(string username)
