@@ -4,6 +4,9 @@ using System.Net;
 
 namespace Battleship.Loggers
 {
+    /// <summary>
+    /// Logger that includes an EndPoint in its log statements.
+    /// </summary>
     public class EndPointLogger : ILogger
     {
         private readonly TextWriter _writer;

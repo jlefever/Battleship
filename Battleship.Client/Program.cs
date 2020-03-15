@@ -11,10 +11,11 @@ namespace Battleship.Client
     {
         public static async Task Main(string[] args)
         {
+            // Create a logger
             var logger = new Logger(Console.Out);
 
+            // If the user did not supply an IP, attempt to discover a server on the same subnet.
             IPEndPoint endPoint;
-
             if (args.Length > 0)
             {
                 endPoint = new IPEndPoint(IPAddress.Parse(args[0]), BspConstants.DefaultPort);
@@ -25,6 +26,7 @@ namespace Battleship.Client
                 endPoint = await DiscoverServerEndPoint(BspConstants.DefaultPort);
             }
 
+            // Attempt to connect to the server.
             var unparser = new MessageUnparser();
             var socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
 
@@ -38,28 +40,44 @@ namespace Battleship.Client
                 logger.LogError($"Failed to connect to {endPoint}");
             }
 
+            // Create a disconnecter that can clean up a connection.
             var disconnecter = new ClientDisconnecter(logger, socket);
+
+            // Create a sender for sending to the server.
             var senderHandler = new MultiMessageHandler();
             var sender = new BspSender(socket, logger, unparser, senderHandler);
+            
+            // Create a prompter to handle user interaction.
             var prompter = new Prompter(sender);
+
+            // Create a state machine
             var container = new ClientNetworkStateContainer(prompter);
             var context = new NetworkStateContext(container, disconnecter);
 
+            // Register sending messages with our state machine.
             senderHandler.AddHandler(LoggingMessageHandler.ForSending(logger));
             senderHandler.AddHandler(new SentMessageHandler(context));
 
+            // Register receiving messages with our state machine.
             var receiverHandler = new MultiMessageHandler();
             receiverHandler.AddHandler(LoggingMessageHandler.ForReceiving(logger));
             receiverHandler.AddHandler(new ReceiveMessageHandler(context));
 
+            // Create a parser for our connection with the server
             var parser = new MessageParser(receiverHandler, new GameTypeRepository());
             var receiver = new BspReceiver(socket, disconnecter, parser, logger);
 
+            // Begin receive messages and start the prompt.
             var receivingTask = receiver.StartReceivingAsync();
             prompter.PromptLogOn();
             await receivingTask;
         }
 
+        /// <summary>
+        /// Discover the server EndPoint. Will async wait forever if it cannot find one.
+        /// </summary>
+        /// <param name="port"></param>
+        /// <returns>IPEndPoint of the server</returns>
         private static async Task<IPEndPoint> DiscoverServerEndPoint(int port)
         {
             // Create our broadcast address

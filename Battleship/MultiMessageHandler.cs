@@ -3,6 +3,10 @@ using System.Collections.Generic;
 
 namespace Battleship
 {
+    /// <summary>
+    /// A message handler that will distribute any messages received to any
+    /// other handlers registered with it.
+    /// </summary>
     public class MultiMessageHandler : IMessageHandler
     {
         private readonly IList<IMessageHandler> _handlers;

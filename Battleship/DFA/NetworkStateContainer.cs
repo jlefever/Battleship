@@ -2,6 +2,10 @@
 
 namespace Battleship.DFA
 {
+    /// <summary>
+    /// This contains instances for every INetworkState required by the state machine.
+    /// Principally used by NetworkStateContext to keep track of state instances.
+    /// </summary>
     public abstract class NetworkStateContainer
     {
         public abstract INotConnected NotConnected { get; }

@@ -3,6 +3,9 @@ using Battleship.Messages;
 
 namespace Battleship
 {
+    /// <summary>
+    /// A message handler that passes its messages to a state machine context.
+    /// </summary>
     public class SentMessageHandler : IMessageHandler
     {
         private readonly NetworkStateContext _context;

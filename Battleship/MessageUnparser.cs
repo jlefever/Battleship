@@ -7,6 +7,9 @@ using Battleship.DataTypes;
 
 namespace Battleship
 {
+    /// <summary>
+    /// Converts any message to bytes for purpose of transferring over the wire.
+    /// </summary>
     public class MessageUnparser : IMessageVisitor<IEnumerable<byte>>
     {
         public IEnumerable<byte> VisitBasicMessage(BasicMessage message)

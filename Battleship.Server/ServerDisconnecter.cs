@@ -3,6 +3,9 @@ using System.Net.Sockets;
 
 namespace Battleship.Server
 {
+    /// <summary>
+    /// Manage disconnecting from a client.
+    /// </summary>
     public class ServerDisconnecter : IBspDisconnecter
     {
         private readonly ILogger _logger;
@@ -18,6 +21,9 @@ namespace Battleship.Server
             _matchMaker = matchMaker;
         }
 
+        /// <summary>
+        /// Disconnect from a client. Log the user out and remove them from matchmaking.
+        /// </summary>
         public void Disconnect()
         {
             _logger.LogInfo($"Disconnecting from {_socket.RemoteEndPoint}");

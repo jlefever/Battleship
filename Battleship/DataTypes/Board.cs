@@ -3,6 +3,9 @@ using System.Linq;
 
 namespace Battleship.DataTypes
 {
+    /// <summary>
+    /// Represents a player's board for a given GameType.
+    /// </summary>
     public class Board
     {
         private readonly byte _width;
@@ -24,6 +27,11 @@ namespace Battleship.DataTypes
 
         public byte GameTypeId { get; }
 
+        /// <summary>
+        /// Guess a position and update the board if a ship was hit.
+        /// </summary>
+        /// <param name="position">The position guessed</param>
+        /// <returns>Hit, Miss, Sunk, or Win</returns>
         public GuessResult Guess(Position position)
         {
             // If they guess out of bounds that is a miss.
@@ -53,7 +61,12 @@ namespace Battleship.DataTypes
                 : GuessResult.Hit;
         }
 
-        // TODO: Keep track of which ships have been placed?
+        /// <summary>
+        /// Attempt to place a ship on the board.
+        /// </summary>
+        /// <param name="p">The placement of the ship</param>
+        /// <param name="shipIndex">The index of the ship to be placed</param>
+        /// <returns></returns>
         public bool TryPlace(Placement p, int shipIndex)
         {
             if (!IsValidPlacement(p, shipIndex)) return false;
@@ -78,11 +91,23 @@ namespace Battleship.DataTypes
             return true;
         }
 
+        /// <summary>
+        /// Is this ship in bounds and not overlapping?
+        /// </summary>
+        /// <param name="p">The placement of the ship</param>
+        /// <param name="shipIndex">The index of the ship to be placed</param>
+        /// <returns></returns>
         public bool IsValidPlacement(Placement p, int shipIndex)
         {
             return !IsOutOfBounds(p, shipIndex) && !IsOverlapping(p, shipIndex);
         }
 
+        /// <summary>
+        /// Would placing a ship here put it out of bounds?
+        /// </summary>
+        /// <param name="p">The placement of the ship</param>
+        /// <param name="shipIndex">The index of the ship to be placed</param>
+        /// <returns></returns>
         public bool IsOutOfBounds(Placement p, int shipIndex)
         {
             if (IsOutOfBounds(p.Position))
@@ -100,11 +125,22 @@ namespace Battleship.DataTypes
             return p.Position.Col + length >= _width;
         }
 
+        /// <summary>
+        /// Is this position out of the bounds of this board?
+        /// </summary>
+        /// <param name="p">A position</param>
+        /// <returns></returns>
         public bool IsOutOfBounds(Position p)
         {
             return p.Row >= _height || p.Col >= _width;
         }
 
+        /// <summary>
+        /// Would placing a ship here overlap it with another existing ship?
+        /// </summary>
+        /// <param name="p">A position</param>
+        /// /// <param name="shipIndex">The index of the ship to be placed</param>
+        /// <returns></returns>
         public bool IsOverlapping(Placement p, int shipIndex)
         {
             var length = _shipLengths[shipIndex];
@@ -135,6 +171,12 @@ namespace Battleship.DataTypes
             return false;
         }
 
+        /// <summary>
+        /// Create a board instantiated with negative numbers.
+        /// </summary>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <returns></returns>
         private static int[,] CreateBoard(byte width, byte height)
         {
             var board = new int[width, height];

@@ -14,6 +14,12 @@ namespace Battleship
             _logger = logger;
         }
 
+        /// <summary>
+        /// /Bind to an endpoint and async return any connections that attempt to connect.
+        /// </summary>
+        /// <param name="endPoint">The endpoint to bind to</param>
+        /// <param name="backlog"></param>
+        /// <returns>An async list of Sockets</returns>
         public async IAsyncEnumerable<Socket> StartListeningAsync(IPEndPoint endPoint, int backlog = 120)
         {
             using var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);

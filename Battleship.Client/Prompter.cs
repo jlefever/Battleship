@@ -5,6 +5,11 @@ using System.Collections.Generic;
 
 namespace Battleship.Client
 {
+    /// <summary>
+    /// All user interaction is provided as prompts. Some prompts will poll
+    /// for input and send messages to the server. These are mostly used as
+    /// callbacks for inside the state machine.
+    /// </summary>
     public class Prompter
     {
         private readonly BspSender _sender;
@@ -55,7 +60,7 @@ namespace Battleship.Client
 
         public void PromptInvalidBoard()
         {
-            WriteLine("Something was wrong with your board submission!");
+            WriteLine("Something was wrong with your board submission.");
         }
 
         public void PromptValidBoard()

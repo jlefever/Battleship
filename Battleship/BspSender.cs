@@ -6,6 +6,9 @@ using System.Net.Sockets;
 
 namespace Battleship
 {
+    /// <summary>
+    /// Contains everything required to send a message to another device.
+    /// </summary>
     public sealed class BspSender : IDisposable
     {
         private readonly NetworkStream _stream;
@@ -25,7 +28,10 @@ namespace Battleship
 
         public Socket Socket { get; }
 
-        // Todo: Cancellation token?
+        /// <summary>
+        /// Send a message to the device
+        /// </summary>
+        /// <param name="message"></param>
         public void Send(IMessage message)
         {
             if (!Socket.Connected)

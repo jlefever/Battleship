@@ -2,6 +2,9 @@
 
 namespace Battleship.DataTypes
 {
+    /// <summary>
+    /// A configuration of the game Battleship.
+    /// </summary>
     public class GameType
     {
         public GameType(byte gameTypeId, byte boardWidth, byte boardHeight, IList<byte> shipLengths)

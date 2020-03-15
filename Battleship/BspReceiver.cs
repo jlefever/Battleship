@@ -23,6 +23,10 @@ namespace Battleship
             _parser = parser;
         }
 
+        /// <summary>
+        /// Asynchronously receive and parse data terminating if anything unexpected
+        /// is received.
+        /// </summary>
         public async Task StartReceivingAsync()
         {
             var reader = PipeReader.Create(_stream);
