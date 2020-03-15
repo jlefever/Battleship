@@ -42,7 +42,7 @@ namespace Battleship.DFA.Server
                 return;
             }
 
-            if (!_userRepo.TryLogIn(attempt.Username, attempt.Password))
+            if (!_userRepo.TryLogIn(attempt.Username, attempt.Password, _sender))
             {
                 _sender.Send(new RejectLogOnMessage(BspConstants.Version));
                 return;

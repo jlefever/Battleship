@@ -6,11 +6,10 @@
         {
             Username = username;
             Board = board;
-
-            MatchResponse = MatchResponse.None;
+            AcceptedGame = MatchResponse.None;
         }
 
-        public MatchResponse MatchResponse { get; set; }
+        public MatchResponse AcceptedGame { get; set; }
 
         public string Username { get; }
         public Board Board { get; }

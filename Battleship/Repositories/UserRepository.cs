@@ -6,12 +6,12 @@ namespace Battleship.Repositories
     public class UserRepository
     {
         private readonly IDictionary<string, User> _users;
-        private readonly ISet<string> _loggedInUsers;
+        private readonly IDictionary<string, BspSender> _senders;
 
         public UserRepository()
         {
             _users = new Dictionary<string, User>();
-            _loggedInUsers = new HashSet<string>();
+            _senders = new Dictionary<string, BspSender>();
         }
 
         public bool TryAdd(User user)
@@ -19,35 +19,40 @@ namespace Battleship.Repositories
             return _users.TryAdd(user.Username, user);
         }
 
-        public bool TryLogIn(string username, string password)
+        public bool TryLogIn(string username, string password, BspSender sender)
         {
+            // Check if user exists
             if (!_users.TryGetValue(username, out var user))
             {
-                // User does not exist
                 return false;
             }
 
+            // Validate password
             if (user.Password != password)
             {
-                // Wrong password
                 return false;
             }
 
-            if (_loggedInUsers.Contains(user.Username))
+            // Check if user is already logged in
+            if (_senders.ContainsKey(user.Username))
             {
-                // Already logged in
                 return false;
             }
 
-            _loggedInUsers.Add(user.Username);
+            // Add their connection to the dict.
+            // This also denotes that they are currently logged in.
+            _senders.Add(user.Username, sender);
             return true;
+        }
+
+        public bool TryGetSender(string username, out BspSender sender)
+        {
+            return _senders.TryGetValue(username, out sender);
         }
 
         public void LogOut(string username)
         {
-            _loggedInUsers.Remove(username);
+            _senders.Remove(username);
         }
-
-        // Maintain a list//dict of BspSenders
     }
 }

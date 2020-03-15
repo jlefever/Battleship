@@ -1,8 +1,8 @@
-﻿using Battleship.Loggers;
+﻿using Battleship.DataTypes;
+using Battleship.Loggers;
 using Battleship.Messages;
-using System;
+using Battleship.Repositories;
 using System.Collections.Generic;
-using Battleship.DataTypes;
 
 namespace Battleship.DFA.Server
 {
@@ -11,12 +11,14 @@ namespace Battleship.DFA.Server
         private readonly BspServerState _state;
         private readonly BspSender _sender;
         private readonly ILogger _logger;
+        private readonly UserRepository _userRepo;
 
-        public FoundGame(BspServerState state, BspSender sender, ILogger logger)
+        public FoundGame(BspServerState state, BspSender sender, ILogger logger, UserRepository userRepo)
         {
             _state = state;
             _sender = sender;
             _logger = logger;
+            _userRepo = userRepo;
         }
 
         public IEnumerable<MessageTypeId> ValidReceives => new[]
@@ -27,34 +29,63 @@ namespace Battleship.DFA.Server
 
         public IEnumerable<MessageTypeId> ValidSends => new[]
         {
+            MessageTypeId.AcceptGame,
             MessageTypeId.RejectGame,
             MessageTypeId.GameExpired
         };
 
         public void Received(NetworkStateContext context, IMessage message)
         {
-            if (message.TypeId == MessageTypeId.RejectGame)
+            // Get the opponents connection.
+            if (!_userRepo.TryGetSender(_state.Match.Opponent.Username, out var opponent))
             {
-                context.SetState(NetworkStateId.WaitingForBoard);
+                // Somehow the opponent is not logged in.
+                _sender.Disconnect();
                 return;
             }
 
-            if (message.TypeId == MessageTypeId.AcceptGame)
+            _state.CancelMatchTimer();
+
+            // The player is rejecting the game.
+            if (message.TypeId == MessageTypeId.RejectGame)
             {
-                _state.Match.Player.MatchResponse = MatchResponse.Accept;
+                // Mark the player as accepting the game.
+                _state.Match.Player.AcceptedGame = MatchResponse.Reject;
 
-                if (_state.Match.Opponent.MatchResponse == MatchResponse.Accept)
-                {
-                    context.SetState(NetworkStateId.InitialGame);
-                }
+                // Update our state.
+                context.SetState(NetworkStateId.WaitingForBoard);
 
-                // do something
+                // Let the opponent know that the player has rejected the game.
+                opponent.Send(new BasicMessage(MessageTypeId.RejectGame));
+                return;
+            }
+
+            // The only remaining valid message is AcceptGame. So mark the player as accept.
+            _state.Match.Player.AcceptedGame = MatchResponse.Accept;
+
+            // If the opponent has also sent AcceptGame, we let both know to start the game.
+            if (_state.Match.Opponent.AcceptedGame == MatchResponse.Accept)
+            {
+                // Let both know that the game has been accepted.
+                _sender.Send(new BasicMessage(MessageTypeId.AcceptGame));
+                opponent.Send(new BasicMessage(MessageTypeId.AcceptGame));
             }
         }
 
         public void Sent(NetworkStateContext context, IMessage message)
         {
-            // This is left intentionally blank.
+            switch (message.TypeId)
+            {
+                case MessageTypeId.AcceptGame:
+                    context.SetState(NetworkStateId.InitialGame);
+                    return;
+                case MessageTypeId.RejectGame:
+                    context.SetState(NetworkStateId.WaitingForBoard);
+                    return;
+                case MessageTypeId.GameExpired:
+                    context.SetState(NetworkStateId.WaitingForBoard);
+                    return;
+            }
         }
     }
 }

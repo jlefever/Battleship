@@ -13,8 +13,8 @@ namespace Battleship.DFA
             PendingLogOn = new Server.PendingLogOn();
             WaitingForBoard = new Server.WaitingForBoard(state, sender, logger, gameTypeRepo, matchMaker);
             PendingBoard = new Server.PendingBoard();
-            WaitingForGame = new Server.WaitingForGame(state, sender, logger, matchMaker);
-            FoundGame = new Server.FoundGame(state, sender, logger);
+            WaitingForGame = new Server.WaitingForGame(state, sender, logger, matchMaker, userRepo);
+            FoundGame = new Server.FoundGame(state, sender, logger, userRepo);
             InitialGame = new Server.InitialGame(sender, logger);
             MyTurn = new Server.MyTurn(sender, logger);
             TheirTurn = new Server.TheirTurn(sender, logger);
