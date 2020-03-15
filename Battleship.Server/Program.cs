@@ -12,14 +12,12 @@ namespace Battleship.Server
     {
         public static async Task Main(string[] args)
         {
-            if (args.Length != 1)
-            {
-                Console.WriteLine("Must include the IP address to listen on as the only arguement.");
-                return;
-            }
+            // Get the IP address to bind to as a command line arguement or default
+            // to 127.0.0.1.
+            var userSuppliedIp = args.Length < 1 ? "127.0.0.1" : args[0];
 
             // Require the IP address be supplied as a command line argument.
-            var localIp = IPAddress.Parse(args[0]);
+            var localIp = IPAddress.Parse(userSuppliedIp);
             var localEndPoint = new IPEndPoint(localIp, BspConstants.DefaultPort);
 
             // Begin listening for clients attempting to discover the server IP
